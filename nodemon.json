@@ -1,0 +1,8 @@
+{
+    "verbose": true,
+    "ignore": [
+        "build/",
+        "node_modules"
+    ],
+    "ext": "ts, json, js"
+}
