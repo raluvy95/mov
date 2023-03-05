@@ -55,5 +55,3 @@ class Mov extends CommandClient {
 export const client = new Mov()
 
 if (!process.env.SERVER_ID) throw new Error("The env SERVER_ID is undefined")
-
-client.registerCommand("ping", "PONG!!!")

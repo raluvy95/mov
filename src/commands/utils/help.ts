@@ -8,9 +8,33 @@ function generator(msg: Message, args: string[]) {
     const emb = new MovEmbed()
 
     if(args.length > 0) {
-        const command = args[0]
-        if(client.commands[command] == undefined) {
-            
+        const command = client.commands[args[0]]
+        if(command != undefined) {
+            function bool(bo: boolean) {
+                return bo ? "Yes" : "No" 
+            }
+            const prefixes = client.guildPrefixes[msg.guildID!] || "$"
+            const prefix = Array.isArray(prefixes) ? prefixes[0] : prefixes
+            const perm = () => {
+                if(!command.requirements.permissions) return "No permissions is required"
+                let result: string = ''
+                for(const [k, v] of Object.entries(command.requirements.permissions)) {
+                    result+=`**${k}** - ${v ? '✅' : '❌'}`
+                }
+                return result
+            }
+            emb.setTitle(`Command: ${command.label}`)
+            .setDesc(command.description)
+            .addFields([
+                {name: "Aliases", value: command.aliases.length < 1 ? "No aliases" : command.aliases.map(m => `\`${m}\``).join(", "), inline: true},
+                {name: "Cooldown", value: command.cooldown.toString(), inline: true},
+                {name: "Usage", value: `${prefix}${command.label} ${command.usage}`, inline: true},
+                {name: "DM only", value: bool(command.dmOnly), inline: true},
+                {name: "Server only", value: bool(command.guildOnly), inline: true},
+                {name: "Permission", value: perm()}
+            ])
+            client.createMessage(msg.channel.id, emb.build())
+            return
         }
     }
     emb.setTitle(`Help command - ${Object.keys(client.commands).length} commands`)

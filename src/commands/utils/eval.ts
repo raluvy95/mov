@@ -24,6 +24,7 @@ function generator(message: Message, args: string[]) {
         const output = clean(evaled as string)
         if (output.length > 1990) {
             client.createMessage(message.channel.id, "The output is too long! Check logs!")
+            console.log(output)
             return
         } else {
             client.createMessage(message.channel.id, codee(String(output)))
