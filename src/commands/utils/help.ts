@@ -4,7 +4,7 @@ import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
 
-function generator(msg: Message, args: string[]) {
+async function generator(msg: Message, args: string[]) {
     const emb = new MovEmbed()
 
     if(args.length > 0) {
@@ -16,13 +16,14 @@ function generator(msg: Message, args: string[]) {
             const prefixes = client.guildPrefixes[msg.guildID!] || "$"
             const prefix = Array.isArray(prefixes) ? prefixes[0] : prefixes
             const perm = () => {
-                if(!command.requirements.permissions) return "No permissions is required"
+                if(!command.requirements.permissions || Object.keys(command.requirements.permissions).length < 1) return "No permissions is required"
                 let result: string = ''
                 for(const [k, v] of Object.entries(command.requirements.permissions)) {
                     result+=`**${k}** - ${v ? '✅' : '❌'}`
                 }
                 return result
             }
+            const usagestat = await client.database.cmdStat.get<number>(command.label)
             emb.setTitle(`Command: ${command.label}`)
             .setDesc(command.description)
             .addFields([
@@ -31,6 +32,7 @@ function generator(msg: Message, args: string[]) {
                 {name: "Usage", value: `${prefix}${command.label} ${command.usage}`, inline: true},
                 {name: "DM only", value: bool(command.dmOnly), inline: true},
                 {name: "Server only", value: bool(command.guildOnly), inline: true},
+                {name: "Usage count", value: !usagestat ? "Nobody uses that :(" : usagestat.toString(), inline: true},
                 {name: "Permission", value: perm()}
             ])
             client.createMessage(msg.channel.id, emb.build())

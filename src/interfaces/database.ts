@@ -66,7 +66,6 @@ export interface IUserDB {
 }
 
 export interface ILevelDB {
-    userId: string,
     xp: number,
     level: number
     totalxp: number

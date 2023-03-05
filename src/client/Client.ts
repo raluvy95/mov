@@ -1,12 +1,13 @@
 import { CommandClient } from 'eris';
-import { LevelDB, MovDB, SettingsDB, UserDB } from './Database';
+import { CmdStatDB, LevelDB, MovDB, SettingsDB, UserDB } from './Database';
 import { readdirSync } from 'fs';
 import { MovCommand } from './Command';
 
 interface ClientDatabase {
     level: MovDB
     settings: MovDB
-    user: MovDB
+    user: MovDB,
+    cmdStat: MovDB
 }
 
 class Mov extends CommandClient {
@@ -23,7 +24,8 @@ class Mov extends CommandClient {
         this.database = {
             level: new LevelDB(),
             settings: new SettingsDB(),
-            user: new UserDB()
+            user: new UserDB(),
+            cmdStat: new CmdStatDB()
         };
 
         (async () => await this.init())()

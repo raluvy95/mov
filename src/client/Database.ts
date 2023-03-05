@@ -12,7 +12,7 @@ export class MovDB extends QuickDB {
 
 export class SettingsDB extends MovDB {
     constructor() {
-        super("settings")
+        super("botsettings")
     }
 }
 
@@ -25,5 +25,11 @@ export class LevelDB extends MovDB {
 export class UserDB extends MovDB {
     constructor() {
         super("serversettings")
+    }
+}
+
+export class CmdStatDB extends MovDB {
+    constructor() {
+        super("cmdstats")
     }
 }
