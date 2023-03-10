@@ -1,27 +1,5 @@
 {
-	/*
-	import { Message } from "eris";
-import { client } from "../../client/Client";
-import { MovCommand } from "../../client/Command";
-
-function generator(msg: Message, args: string[]) {
-    client.createMessage(msg.channel.id, `Meow!!!! ${args.join(" ")}`)
-}
-
-class Cat extends MovCommand {
-    constructor() {
-        super("cat", generator, {
-            aliases: ["kitty"],
-            description: "kittee",
-            usage: "eoijfvefr[ouher[ouewfoi"
-        })
-    }
-}
-
-export default new Cat()
-	*/
-	// Example:
-	"Command": {
+	"Command template": {
 		"scope": "typescript",
 		"prefix": "command",
 		"body": [
@@ -42,5 +20,20 @@ export default new Cat()
 			"export default new $1();"
 		],
 		"description": "Log output to console"
+	},
+	"Plugin template": {
+		"scope": "typescript",
+		"prefix": "plugin",
+		"body": [
+			"import { client } from \"../client/Client\";",
+			"import { MovPlugin } from \"../client/Plugin\";",
+			"",
+			"export default new MovPlugin(\"$1\", [{",
+			"    event: \"$2\",",
+			"    run($3) {",
+			"        $4",
+			"    }",
+			"}"
+		]
 	}
 }

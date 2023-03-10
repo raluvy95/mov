@@ -11,7 +11,7 @@ function generator(msg: Message, _args: string[]) {
 
 class Ping extends MovCommand {
     constructor() {
-        super("ping", generator, { cooldown: 10 })
+        super("ping", generator, { cooldown: 10 * 1000 })
     }
 }
 

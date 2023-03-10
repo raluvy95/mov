@@ -1,8 +1,10 @@
 {
-    "verbose": true,
     "ignore": [
         "build/",
         "node_modules"
+    ],
+    "watch": [
+        "src/"
     ],
     "ext": "ts, json, js"
 }

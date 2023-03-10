@@ -1,7 +1,15 @@
-import { CommandClient } from 'eris';
+import { CommandClient, GeneratorFunctionReturn, Message, TextableChannel, User } from 'eris';
 import { CmdStatDB, LevelDB, MovDB, SettingsDB, UserDB } from './Database';
 import { readdirSync } from 'fs';
 import { MovCommand } from './Command';
+import { MovPlugin } from './Plugin';
+// import { Collection } from '@discordjs/collection';
+import EventEmitter from 'events';
+import { Collection } from '@discordjs/collection';
+import { IUserDB } from '../interfaces/database';
+import { split } from 'shlex'
+
+export const levelEmitter = new EventEmitter()
 
 interface ClientDatabase {
     level: MovDB
@@ -13,32 +21,145 @@ interface ClientDatabase {
 class Mov extends CommandClient {
 
     public database: ClientDatabase
+    public cooldownLevel: Map<string, number>
 
     constructor() {
         if (!process.env.DISCORD_TOKEN) throw new Error("The env DISCORD_TOKEN is undefined")
+        if (!process.env.SERVER_ID) throw new Error("The env SERVER_ID is undefined");
         super(process.env.DISCORD_TOKEN, {
-            intents: ["guildMembers", "guildMessages"]
+            intents: ["guildMembers", "guildMessages", "guilds", "guildMembers",
+                "guildMessageReactions", "guildWebhooks", "guildEmojis"],
+            restMode: true
         }, {
-            prefix: "$"
+            prefix: "$",
+            owner: "CatNowBlue",
+            defaultHelpCommand: false,
+            argsSplitter(str: string) {
+                return split(str)
+            },
         })
+        this.removeAllListeners("messageCreate")
         this.database = {
             level: new LevelDB(),
-            settings: new SettingsDB(),
+            settings: new SettingsDB(process.env.SERVER_ID),
             user: new UserDB(),
             cmdStat: new CmdStatDB()
         };
 
+        this.cooldownLevel = new Collection();
+
         (async () => await this.init())()
     }
 
-    private async init() {
-        if (await this.database.settings.has('prefix')) {
-            if (!process.env.SERVER_ID) throw new Error("The env SERVER_ID is undefined");
-            this.registerGuildPrefix(process.env.SERVER_ID, await this.database.settings.get('prefix') || "$")
+    private async userCommandResolver(label: string, userDB?: IUserDB | null) {
+        if (!userDB) return undefined;
+
+        label = userDB.aliases.find(m => m.alias.includes(label))?.commandTarget || label;
+        let command = this.commands[label];
+        if (command) {
+            return command;
+        }
+        label = label.toLowerCase();
+        label = this.commandAliases[label] || label;
+        command = this.commands[label];
+        if (command?.caseInsensitive) {
+            return command;
+        }
+    }
+
+    private async commandHandler(msg: Message<any>, userDB?: IUserDB | null) {
+        const args = (this.commandOptions.argsSplitter!(msg.content.replace(/<@!/g, "<@").substring(msg.prefix!.length).trim())) as string[];
+        const label = args.shift();
+        if (!label) return;
+        let command
+
+        command = await this.userCommandResolver(label, userDB);
+        if (!command) {
+            command = this.resolveCommand(label);
         }
 
-        this.unregisterCommand("help")
+        if (command !== undefined) {
+            msg.command = command;
+            try {
+                let resp: GeneratorFunctionReturn = await msg.command.process(args, msg);
+                let m: Message<TextableChannel> | undefined = undefined
+                if (resp != null) {
+                    m = await this.createMessage(msg.channel.id, resp);
+                    if (msg.command.reactionButtons) {
+                        msg.command.reactionButtons.forEach((button) => m!.addReaction(button.emoji));
+                        this.activeMessages[m.id] = {
+                            args: args,
+                            command: msg.command,
+                            timeout: setTimeout(() => {
+                                this.unwatchMessage(m!.id, m!.channel.id);
+                            }, msg.command.reactionButtonTimeout)
+                        };
+                    }
+                }
+                if (msg.command.hooks.postCommand) {
+                    msg.command.hooks.postCommand(msg, args, m);
+                }
+            } catch (err) {
+                this.emit("error", err);
+                if (msg.command.hooks.postExecution) {
+                    msg.command.hooks.postExecution(msg, args, false);
+                }
+                let newMsg;
+                if (msg.command.errorMessage) {
+                    try {
+                        if (typeof msg.command.errorMessage === "function") {
+                            // @ts-ignore
+                            const reply = await msg.command.errorMessage(msg, err);
+                            if (reply !== undefined) {
+                                newMsg = await this.createMessage(msg.channel.id, reply);
+                            }
+                        } else {
+                            newMsg = await this.createMessage(msg.channel.id, msg.command.errorMessage);
+                        }
+                    } catch (err) {
+                        this.emit("error", err);
+                    }
+                }
+                if (msg.command.hooks.postCommand) {
+                    msg.command.hooks.postCommand(msg, args, newMsg);
+                }
+            }
+        }
+    }
 
+    /*
+      When default onMessageCreate is so bad that
+      it raises TypeError on TypeScript LOL
+
+      had to modify onMessageCreate
+      so I could add user-made aliases/prefixes
+
+      best eris command 10/10
+    */
+    override async onMessageCreate(msg: Message<any>) {
+        if (!this.ready) {
+            return;
+        }
+        if (msg.author.bot) return;
+        (msg.command as any) = false;
+
+        const userPref = await this.database.user.get<IUserDB>(msg.author.id)
+        if (msg.prefix = this.checkPrefix(msg)) {
+            this.commandHandler(msg, userPref || undefined)
+        } else if (msg.prefix = userPref?.prefix) {
+            this.commandHandler(msg, userPref || undefined)
+        }
+    }
+
+
+    private async init() {
+        if (!process.env.SERVER_ID) throw new Error("The env SERVER_ID is undefined");
+
+        if (await this.database.settings.has(`${process.env.SERVER_ID}.prefix`)) {
+            this.registerGuildPrefix(process.env.SERVER_ID, await this.database.settings.get(`${process.env.SERVER_ID}.prefix`) || "$")
+        }
+
+        // Command handler
         const modules = readdirSync("./build/commands")
         for (const mod of modules) {
             const commands = readdirSync(`./build/commands/${mod}`)
@@ -48,9 +169,37 @@ class Mov extends CommandClient {
                     this.registerCommand(command.default.label, command.default.generator, command.default.options)
                 } catch (e) {
                     console.error(e)
+                    continue
                 }
             }
         }
+
+        // Event (also called as Plugin) handler
+        const plugins = readdirSync("./build/plugins")
+        this.on("messageCreate", this.onMessageCreate)
+        for (const plugin of plugins) {
+            try {
+                const plug: { default: MovPlugin<any> } = await import(`../plugins/${plugin}`)
+
+                if (!plug.default.enable) {
+                    continue
+                } else {
+                    client.on(plug.default.events.event, plug.default.events.run)
+                    console.log(`Plugin: ${plug.default.name} loaded!`)
+                }
+            } catch (e) {
+                console.error(`Failed to load plugin!`, e)
+                continue
+            }
+        }
+
+        this.on("ready", () => {
+            console.log(`Logged as ${this.user.username}#${this.user.discriminator}!`)
+        })
+
+        levelEmitter.on('lvlUP', (channelId: string, user: User, level: number) => {
+            this.createMessage(channelId, `Congrats <@${user.id}>! You reached level **${level}**`)
+        })
     }
 }
 
