@@ -10,10 +10,9 @@ async function generator(msg: Message, args: string[]) {
     if (!uSettings) {
         uSettings = await client.database.user.set<IUserDB>(msg.author.id, {
             prefix: "$",
-            rankLayout: "mov",
             aliases: [],
-            colorAccent: labels.mauve.mocha.hex,
-            customBackgroundURL: undefined
+            colorAccent: msg.author.accentColor?.toString(16) || labels.mauve.mocha.hex,
+            customBackgroundURL: "color"
         })
     }
     // to prevent from adding useralias to existing aliases smh

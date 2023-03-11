@@ -1,9 +1,9 @@
 import { client } from "../client/Client";
 
-export async function getUser(id: string) {
+export async function getUser(id: string, cacheOnly?: boolean) {
     const cache = client.users.get(id)
     if (!cache) {
-        return await client.getRESTUser(id)
+        return cacheOnly ? undefined : await client.getRESTUser(id)
     } else {
         return cache
     }

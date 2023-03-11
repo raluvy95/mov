@@ -10,10 +10,9 @@ async function generator(msg: Message, args: string[]) {
     if (!uSettings) {
         uSettings = await client.database.user.set<IUserDB>(msg.author.id, {
             prefix: "$",
-            rankLayout: "mov",
             aliases: [],
-            colorAccent: labels.mauve.mocha.hex,
-            customBackgroundURL: undefined
+            colorAccent: msg.author.accentColor?.toString(16) || labels.mauve.mocha.hex,
+            customBackgroundURL: "color"
         })
     }
     if (args.length > 0) {
@@ -34,11 +33,10 @@ async function generator(msg: Message, args: string[]) {
     const listAlias = uSettings.aliases.map(m => `**${m.commandTarget}** => (${m.alias.map(n => `\`${n}\``).join(", ")})`).join("\n")
     const e = new MovEmbed()
         .setTitle("User Settings")
-        .setDesc("Change your user prefix or user alias!\n(you can still use global prefix)\nUse `$userconfig <prefix|layout> <value>` to change the configuration!\nUse `$aliases` to manage your aliases!")
+        .setDesc("Change your user prefix or user alias!\nUse `$userconfig <key> <value>` (where key is in the `code` part) to change the configuration!\nUse `$aliases` to manage your aliases!\n\nExample:\n`$uconf customBackgroundColor https://url/to/image.jpeg`\n`$uconf prefix \"hey mov, \"")
         .addField("Prefix [`prefix`]", uSettings.prefix || "No user prefix", true)
-        .addField("Rank Layout [`rankLayout`]", uSettings.rankLayout, true)
         .addField("Color Accent [`colorAccent`]", uSettings.colorAccent, true)
-        .addField("Background URL [`customBackgroundURL`]", uSettings.customBackgroundURL ? `[click to view](${uSettings.customBackgroundURL})` : "No custom background set")
+        .addField("Background URL [`customBackgroundURL`]", uSettings.customBackgroundURL != "color" ? `[click to view](${uSettings.customBackgroundURL})` : "color")
         .addField("Aliases", uSettings.aliases?.length > 0 ?
             listAlias.length >= 1000 ? listAlias.slice(0, 950) + "... `$aliases` to show more" : listAlias
             : "No user alias")

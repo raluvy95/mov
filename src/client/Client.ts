@@ -6,7 +6,7 @@ import { MovPlugin } from './Plugin';
 // import { Collection } from '@discordjs/collection';
 import EventEmitter from 'events';
 import { Collection } from '@discordjs/collection';
-import { IUserDB } from '../interfaces/database';
+import { ISettingsDB, IUserDB } from '../interfaces/database';
 import { split } from 'shlex'
 
 export const levelEmitter = new EventEmitter()
@@ -31,11 +31,15 @@ class Mov extends CommandClient {
                 "guildMessageReactions", "guildWebhooks", "guildEmojis"],
             restMode: true
         }, {
-            prefix: "$",
+            prefix: ["$", "sudo "],
             owner: "CatNowBlue",
             defaultHelpCommand: false,
             argsSplitter(str: string) {
-                return split(str)
+                try {
+                    return split(str)
+                } catch {
+                    return str.split(/\s+/g)
+                }
             },
         })
         this.removeAllListeners("messageCreate")
@@ -127,6 +131,27 @@ class Mov extends CommandClient {
         }
     }
 
+    private async checkPrefixMod(msg: Message<any>) {
+        let prefixes = this.commandOptions.prefix;
+        const userPref = await this.database.user.get<IUserDB>(msg.author.id)
+        const server = await this.database.settings.get<ISettingsDB>(msg.guildID!)
+
+        if (userPref?.prefix || server?.prefix) {
+            prefixes = userPref?.prefix || server?.prefix
+        } else if (msg.mentions.includes(this.user)) {
+            prefixes = this.user.id
+            msg.prefix = `<@${this.user.id}>`
+        } else if (msg.channel.guild !== undefined && this.guildPrefixes[msg.channel.guild.id] !== undefined) {
+            prefixes = this.guildPrefixes[msg.channel.guild.id];
+        }
+        if (typeof prefixes === "string") {
+            return msg.content.replace(/<@!/g, "<@").startsWith(prefixes) && prefixes;
+        } else if (Array.isArray(prefixes)) {
+            return prefixes.find((prefix) => msg.content.replace(/<@!/g, "<@").startsWith(prefix));
+        }
+        throw new Error(`Unsupported prefix format | ${prefixes}`);
+    }
+
     /*
       When default onMessageCreate is so bad that
       it raises TypeError on TypeScript LOL
@@ -143,21 +168,29 @@ class Mov extends CommandClient {
         if (msg.author.bot) return;
         (msg.command as any) = false;
 
+        if (msg.mentions.includes(this.user)) {
+            const userPref = await this.database.user.get<IUserDB>(msg.author.id)
+            const server = await this.database.settings.get<ISettingsDB>(msg.guildID!)
+            const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : ''
+            const responseS = server?.prefix ? `The bot's prefix is \`${server.prefix}\`` : ''
+            const com = responseU + "%" + responseS
+            if (com.length == 1) {
+                client.createMessage(msg.channel.id, "Hello! You can response me with mention! Use `@" + this.user.username + " help` to get started!")
+            } else {
+                client.createMessage(msg.channel.id, `Hey!\n${com.split("%").join("\n")}`)
+            }
+        }
+
         const userPref = await this.database.user.get<IUserDB>(msg.author.id)
-        if (msg.prefix = this.checkPrefix(msg)) {
+        if ((msg.prefix as any) = await this.checkPrefixMod(msg)) {
             this.commandHandler(msg, userPref || undefined)
-        } else if (msg.prefix = userPref?.prefix) {
-            this.commandHandler(msg, userPref || undefined)
+
         }
     }
 
 
     private async init() {
         if (!process.env.SERVER_ID) throw new Error("The env SERVER_ID is undefined");
-
-        if (await this.database.settings.has(`${process.env.SERVER_ID}.prefix`)) {
-            this.registerGuildPrefix(process.env.SERVER_ID, await this.database.settings.get(`${process.env.SERVER_ID}.prefix`) || "$")
-        }
 
         // Command handler
         const modules = readdirSync("./build/commands")

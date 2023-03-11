@@ -14,7 +14,6 @@ interface UserAlias {
 
 export interface IUserDB {
     prefix: string,
-    rankLayout: "mov" | "mee6" | "cyber" | "nord",
     colorAccent: string
     aliases: UserAlias[],
     customBackgroundURL?: string

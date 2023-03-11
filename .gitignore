@@ -3,3 +3,5 @@ node_modules/
 .env
 .MOV.sqlite
 package-lock.json
+.vscode/settings.json
+database.sqlite

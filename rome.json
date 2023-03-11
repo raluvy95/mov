@@ -5,6 +5,7 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "tab",
-    "indentSize": 4
+    "indentSize": 4,
+    "formatWithErrors": true
   }
 }
