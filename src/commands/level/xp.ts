@@ -10,7 +10,13 @@ async function generator(msg: Message, _args: string[]) {
         client.createMessage(msg.channel.id, "You don't have any XP. Try to chat first.")
         return
     }
-    const img = await genXPRank(msg.author, level)
+    let img
+    try {
+        img = await genXPRank(msg.author, level)
+    } catch {
+        client.createMessage(msg.channel.id, `There was an error rendering the rank image. (most likely invalid user config)\nYou currently have level **${level.level}**, xp **${level.xp}** and total xp: **${level.totalxp}**`)
+        return
+    }
     client.createMessage(msg.channel.id, {}, [{
         file: img,
         name: "xp.png"

@@ -120,20 +120,25 @@ function rankTxt(ctx: CanvasRenderingContext2D, rank: number, x: number, y: numb
 }
 
 export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
+
+    const { colorAccent, customBackgroundURL } = await getUserPref(user)
     const canvas = createCanvas(350, 155)
     const ctx = canvas.getContext("2d")
 
     await generateBg(canvas, ctx, user)
 
     ctx.fillStyle = labels.base.mocha.hex
+    if (customBackgroundURL !== "color") {
+        ctx.globalAlpha = 0.5
+    }
     ctx.beginPath()
     ctx.roundRect(20, 10, canvas.width - 40, canvas.height - 20, 10)
     ctx.fill()
     ctx.closePath()
 
-    const name = `${user.username}#${user.discriminator}`
+    ctx.globalAlpha = 1
 
-    const { colorAccent } = await getUserPref(user)
+    const name = `${user.username}#${user.discriminator}`
 
     await genAvatar(ctx, user, 40, (canvas.height / 2) - 60, true)
 
@@ -143,22 +148,22 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     ctx.fillText(name, canvas.width / 2 - width / 2, canvas.height - 15)
 
     ctx.fillStyle = colorAccent
-    ctx.font = "48px 'Impact'"
-    const txtLvl = `LEVEL ${level.level}`
+    ctx.font = "46px 'RobotoB'"
+    const txtLvl = `Level ${level.level}`
     const t = ctx.measureText(txtLvl)
-    ctx.fillText(txtLvl, (canvas.width / 2 - t.width / 2) + 30, (canvas.height / 2) + 10)
+    ctx.fillText(txtLvl, (canvas.width / 2 - t.width / 2) + 35, (canvas.height / 2) + 10)
 
     progressBar(ctx, level, colorAccent, canvas.width - 60, 20, 30, (canvas.height / 2) + 25)
 
     const leaderboardRank = await getLeaderboardRank(user.id)
     ctx.fillStyle = labels.overlay0.mocha.hex
-    ctx.font = "20px 'Impact'"
-    rankTxt(ctx, leaderboardRank.rank, (canvas.width / 2 - t.width / 2) + 30, (canvas.height / 2) - 30)
+    ctx.font = "20px 'RobotoB'"
+    rankTxt(ctx, leaderboardRank.rank, (canvas.width / 2 - t.width / 2) + 35, (canvas.height / 2) - 30)
 
     return canvas.toBuffer()
 }
 
-async function leaderboardContent(ctx: CanvasRenderingContext2D, canvas: Canvas, entry: { id: string, value: ILevelDB }, index: number): Promise<void> {
+async function leaderboardContent(ctx: CanvasRenderingContext2D, canvas: Canvas, entry: { id: string, value: ILevelDB }, rank: number, index: number): Promise<void> {
 
     const contentIndex = 35 * index
     ctx.fillStyle = labels.base.mocha.hex
@@ -172,7 +177,7 @@ async function leaderboardContent(ctx: CanvasRenderingContext2D, canvas: Canvas,
 
     ctx.fillStyle = labels.text.mocha.hex
     ctx.font = "16px 'RobotoB'"
-    switch (index + 1) {
+    switch (rank + 1) {
         case 1:
             ctx.fillStyle = labels.yellow.mocha.hex
             break
@@ -188,7 +193,7 @@ async function leaderboardContent(ctx: CanvasRenderingContext2D, canvas: Canvas,
             ctx.fillStyle = labels.overlay0.mocha.hex
             break
     }
-    ctx.fillText(`#${index + 1}`, 15, contentIndex + 20)
+    ctx.fillText(`#${rank + 1}`, 15, contentIndex + 20)
     ctx.fillStyle = labels.text.mocha.hex
     ctx.fillText(name, 50, contentIndex + 20, 250)
     ctx.fillStyle = labels.subtext1.mocha.hex
@@ -197,29 +202,32 @@ async function leaderboardContent(ctx: CanvasRenderingContext2D, canvas: Canvas,
     ctx.fillText(`Level ${entry.value.level.toLocaleString()} | Total XP: ${entry.value.totalxp.toLocaleString()}`, 280, contentIndex + 20)
 }
 
-export async function leaderboardCanvas(levels: { id: string, value: ILevelDB }[], msg: Message<any>) {
+export async function leaderboardCanvas(levels: { id: string, value: ILevelDB }[], msg: Message<any>, page: number) {
     const canvas = createCanvas(550, (35 * levels.length) + 60)
     const ctx = canvas.getContext("2d")
 
     ctx.fillStyle = labels.crust.mocha.hex
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    let rank: number = 0
+    let rank: number = (page - 1) * 15
+    let index = 0
+
     for (const entry of levels) {
-        await leaderboardContent(ctx, canvas, entry, rank)
+        await leaderboardContent(ctx, canvas, entry, rank, index)
         rank++
+        index++
     }
 
     const { colorAccent } = await getUserPref(msg.author)
 
     ctx.fillStyle = colorAccent
     ctx.beginPath()
-    ctx.roundRect(10, (35 * rank) + 10, canvas.width - 20, 40, 5)
+    ctx.roundRect(10, (35 * index) + 10, canvas.width - 20, 40, 5)
     ctx.fill()
     ctx.closePath()
 
     const yourRank = await getLeaderboardRank(msg.author.id)
-    const positionI = (35 * rank) + 35
+    const positionI = (35 * index) + 35
 
     switch (yourRank.rank) {
         case 1:

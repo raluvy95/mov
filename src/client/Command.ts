@@ -4,9 +4,9 @@ import { client } from "./Client";
 export class MovCommand {
     public label: string
     public generator: CommandGenerator
-    public options?: CommandOptions
+    public options?: CommandOptions & { useBasicArgSplit: boolean }
 
-    constructor(label: string, generator: CommandGenerator, options?: CommandOptions) {
+    constructor(label: string, generator: CommandGenerator, options?: CommandOptions & { useBasicArgSplit?: boolean }) {
         this.label = label
         this.generator = generator
         this.options = {
@@ -24,6 +24,7 @@ export class MovCommand {
                 }
             },
             guildOnly: true,
+            useBasicArgSplit: false,
             ...options
         }
     }

@@ -1,5 +1,6 @@
 import { labels } from "@catppuccin/palette";
 import { Message } from "eris";
+import fetch from "node-fetch";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
@@ -26,6 +27,13 @@ async function generator(msg: Message, args: string[]) {
             client.createMessage(msg.channel.id, "Invalid type: " + type)
             return
         }
+        if (type == "customBackgroundURL" && value != "color") {
+            const s = await fetch(value).then(r => r.status)
+            if (s != 200) {
+                client.createMessage(msg.channel.id, `Oops! The URL you are trying to set returns ${s} status!`)
+                return
+            }
+        }
         client.database.user.set(`${msg.author.id}.${type}`, value)
         client.createMessage(msg.channel.id, `Successfully changed for your ${type}!`)
         return
@@ -33,7 +41,7 @@ async function generator(msg: Message, args: string[]) {
     const listAlias = uSettings.aliases.map(m => `**${m.commandTarget}** => (${m.alias.map(n => `\`${n}\``).join(", ")})`).join("\n")
     const e = new MovEmbed()
         .setTitle("User Settings")
-        .setDesc("Change your user prefix or user alias!\nUse `$userconfig <key> <value>` (where key is in the `code` part) to change the configuration!\nUse `$aliases` to manage your aliases!\n\nExample:\n`$uconf customBackgroundColor https://url/to/image.jpeg`\n`$uconf prefix \"hey mov, \"")
+        .setDesc(`Change your user prefix or user alias!\nUse \`${msg.prefix}userconfig <key> <value>\` (where key is in the \`code\` part) to change the configuration!\nUse \`${msg.prefix}aliases\` to manage your aliases!\n\nExample:\n\`${msg.prefix}uconf customBackgroundURL https://url/to/image.jpeg\`\n\`${msg.prefix}uconf prefix \"hey mov, \"\``)
         .addField("Prefix [`prefix`]", uSettings.prefix || "No user prefix", true)
         .addField("Color Accent [`colorAccent`]", uSettings.colorAccent, true)
         .addField("Background URL [`customBackgroundURL`]", uSettings.customBackgroundURL != "color" ? `[click to view](${uSettings.customBackgroundURL})` : "color")

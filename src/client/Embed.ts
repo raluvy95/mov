@@ -96,9 +96,18 @@ export class MovEmbed implements Embed {
         return this
     }
 
+    setFooter(text: string, iconURL?: string) {
+        this.footer = {
+            text,
+            icon_url: iconURL
+        }
+
+        return this
+    }
+
     build(): MessageContent {
         return {
-            embed: this
+            embeds: [this],
         }
     }
 }

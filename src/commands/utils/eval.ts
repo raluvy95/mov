@@ -36,7 +36,7 @@ function generator(message: Message, args: string[]) {
 
 class Eval extends MovCommand {
     constructor() {
-        if(!process.env.OWNER_ID) throw new Error("The env OWNER_ID is undefined")
+        if (!process.env.OWNER_ID) throw new Error("The env OWNER_ID is undefined")
         super("eval", generator, {
             hidden: true,
             requirements: {

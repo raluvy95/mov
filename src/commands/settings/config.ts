@@ -32,13 +32,13 @@ async function generator(msg: Message, args: string[]) {
                 const modul = settings.modules[modulee as keyof Modules]
                 e.setTitle(`View detailed for ${modulee} in JSON`)
                     .setDesc(`\`\`\`json\n${JSON.stringify(modul, null, 4)}\n\`\`\``)
-                    .addField("How to set the values?", `Use $conf ${modulee} set <key> <value>\nTo change prefix for this bot, please use \`$prefix <value>\`\n\nYou can also use \`add\` or \`remove\` subcommand to add new value if key's type is [an array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) (doesn't support multiple key sadly)\n\nExample:\n\`$conf ${modulee} set enable false\`\n\`$conf level set lvlUp.message "{user} just got lvl up!"\`\n\`$conf rss add instances {url: "URL", name: "New instance"}\`\n`)
+                    .addField("How to set the values?", `Use $conf ${modulee} set <key> <value>\nTo change prefix for this bot, please use \`$prefix <value>\`\n\nYou can also use \`add\` or \`remove\` subcommand to add new value if key's type is [an array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) (doesn't support multiple key sadly)\n\nExample:\n\`$conf ${modulee} set enable false\`\n\`$conf level set lvlUp.message "{user} just got lvl up!"\`\n\`$conf rss add instances {"url": "URL", "name": "New instance"}\`\n`)
                 client.createMessage(msg.channel.id, e.build())
                 return
             }
         }
         const key = args[2]
-        const value = args.slice(3).join("")
+        const value = args.slice(3).join(" ")
         if (!key) {
             client.createMessage(msg.channel.id, "What key do you want to change to?")
             return
@@ -77,7 +77,11 @@ async function generator(msg: Message, args: string[]) {
                 break
             case 'set':
                 try {
-                    await client.database.settings.set<ISettingsDB>(`${msg.guildID!}.modules.${modulee}.${key}`, value)
+                    try {
+                        await client.database.settings.set<ISettingsDB>(`${msg.guildID!}.modules.${modulee}.${key}`, JSON.parse(value))
+                    } catch {
+                        await client.database.settings.set<ISettingsDB>(`${msg.guildID!}.modules.${modulee}.${key}`, value)
+                    }
                     client.createMessage(msg.channel.id, `Successfully set!`)
                 } catch (e) {
                     client.createMessage(msg.channel.id, `There's something went wrong: ${e}`)
@@ -93,7 +97,7 @@ async function generator(msg: Message, args: string[]) {
         e.setTitle("Bot Settings")
             .setDesc(`The prefix is \`${settings.prefix}\`. Added on ${dateToString(new Date(botAsMember!.joinedAt!))}\n\nView the detailed module using \`${settings.prefix}config <module>\``)
         for (const [k, v] of Object.entries(settings.modules)) {
-            e.addField(k.toUpperCase(), v.enable ? "Enabled" : "Disabled", true)
+            e.addField(`${k.toUpperCase()} \`[${k}]\``, v.enable ? "Enabled" : "Disabled", true)
         }
         client.createMessage(msg.channel.id, e.build())
     }

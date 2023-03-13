@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node ./build/index.js",
+    "start": "rimraf ./build/ && tsc && node ./build/index.js",
     "watch": "nodemon --exec npm run start"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
     "@types/node": "^18.14.6",
     "@types/node-fetch": "^2.6.2",
     "nodemon": "^2.0.21",
+    "rimraf": "^4.4.0",
     "typescript": "^4.9.5"
   },
   "dependencies": {
@@ -26,7 +27,6 @@
     "dotenv": "^16.0.3",
     "eris": "^0.17.2",
     "node-fetch": "^2.6.9",
-    "quick.db": "^9.0.8",
-    "shlex": "^2.1.2"
+    "quick.db": "^9.0.8"
   }
 }

@@ -7,7 +7,6 @@ import { MovPlugin } from './Plugin';
 import EventEmitter from 'events';
 import { Collection } from '@discordjs/collection';
 import { ISettingsDB, IUserDB } from '../interfaces/database';
-import { split } from 'shlex'
 
 export const levelEmitter = new EventEmitter()
 
@@ -35,10 +34,12 @@ class Mov extends CommandClient {
             owner: "CatNowBlue",
             defaultHelpCommand: false,
             argsSplitter(str: string) {
-                try {
-                    return split(str)
-                } catch {
+                // don't split in quotes
+                const match = str.match(/(("|').*?("|')|([^"\s]|[^'\s])+)+(?=\s*|\s*$)/g)
+                if (!match) {
                     return str.split(/\s+/g)
+                } else {
+                    return match
                 }
             },
         })

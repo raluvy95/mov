@@ -24,16 +24,24 @@ async function generator(msg: Message, args: string[]) {
         .concat(
             uSettings.aliases.flatMap(m => m.alias)
         )
-    if (args.length < 1) {
+    if (args.length < 1 || !isNaN(Number(args[0]))) {
+        let page = !isNaN(Number(args[0])) ? Number(args[0]) : 1
+        const maxPage = Number((uSettings.aliases.length / 20).toFixed())
+
+        if (page > maxPage) {
+            page = maxPage
+        }
+
         const e = new MovEmbed()
             .setTitle(`User aliases [${uSettings.aliases.length}]`)
-            .setDesc(`If you want to modify your aliases, use \`$aliases add <alias name> <target>\` or \`$aliases remove <alias name>\`\nYou cannot have user alias if it conflicts with command name, its build-in aliases AND your user alias`)
+            .setDesc(`If you want to modify your aliases, use \`${msg.prefix}aliases add <alias name> <target>\` or \`${msg.prefix}aliases remove <alias name>\`\nYou cannot have user alias if it conflicts with command name, its build-in aliases AND your user alias`)
         if (uSettings.aliases.length < 1) {
             e.addField("No aliases?", "you don't have any user aliases set")
         } else {
-            for (const alias of uSettings.aliases.slice(0, 25)) {
+            for (const alias of uSettings.aliases.slice((page - 1) * 20, page * 20)) {
                 e.addField(`Target: ${alias.commandTarget}`, alias.alias.map(m => `\`${m}\``).join(", "))
             }
+            e.setFooter(`Page ${page}/${maxPage}`, msg.author.avatarURL)
         }
         client.createMessage(msg.channel.id, e.build())
         return
