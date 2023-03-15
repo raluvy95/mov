@@ -6,7 +6,8 @@ import { MovPlugin } from './Plugin';
 // import { Collection } from '@discordjs/collection';
 import EventEmitter from 'events';
 import { Collection } from '@discordjs/collection';
-import { ISettingsDB, IUserDB } from '../interfaces/database';
+import { ILevelDB, ISettingsDB, IUserDB } from '../interfaces/database';
+import { getMember } from '../utils/get';
 
 export const levelEmitter = new EventEmitter()
 
@@ -28,7 +29,7 @@ class Mov extends CommandClient {
         super(process.env.DISCORD_TOKEN, {
             intents: ["guildMembers", "guildMessages", "guilds", "guildMembers",
                 "guildMessageReactions", "guildWebhooks", "guildEmojis"],
-            restMode: true
+            restMode: true,
         }, {
             prefix: ["$", "sudo "],
             owner: "CatNowBlue",
@@ -196,7 +197,7 @@ class Mov extends CommandClient {
         // Command handler
         const modules = readdirSync("./build/commands")
         for (const mod of modules) {
-            const commands = readdirSync(`./build/commands/${mod}`)
+            const commands = readdirSync(`./build/commands/${mod}`).filter(m => !m.startsWith("."))
             for (const cmd of commands) {
                 try {
                     const command: { default: MovCommand } = await import(`../commands/${mod}/${cmd}`)
@@ -231,8 +232,33 @@ class Mov extends CommandClient {
             console.log(`Logged as ${this.user.username}#${this.user.discriminator}!`)
         })
 
-        levelEmitter.on('lvlUP', (channelId: string, user: User, level: number) => {
-            this.createMessage(channelId, `Congrats <@${user.id}>! You reached level **${level}**`)
+        levelEmitter.on('lvlUP', async (channelId: string, user: User, level: number) => {
+            const userPref = await this.database.user.get<IUserDB>(user.id)
+            const levelDB = (await this.database.settings.get<ISettingsDB>(process.env.SERVER_ID!))!
+
+            let target = `<@${user.id}>`
+            if (userPref?.noMentionOnLevelUP) {
+                target = `**${user.username}#${user.discriminator}**`
+            }
+
+            const roleRewards = levelDB.modules.level.roleRewards
+
+            if (roleRewards != undefined && roleRewards.length > 0) {
+                const member = await getMember(user.id)
+
+                const itexist = roleRewards.find(m => m.level == level)
+                if (!itexist) return;
+
+                member.addRole(itexist.ID.toString(), `Role rewards - reached level ${level}`).catch(err => {
+                    console.warn("Cannot added member's role due to\n", err)
+                })
+            }
+
+            const targetChannelID = levelDB.modules.level.lvlup?.channelId.toString()
+            const targetMsg = levelDB.modules.level.lvlup?.message || `Congrats {mention}! You reached level **{level}**!`
+            this.createMessage(targetChannelID != undefined && targetChannelID == "0" ? channelId : targetChannelID!,
+                targetMsg.replace("{mention}", target)
+                    .replace("{level}", level.toString()))
         })
     }
 }

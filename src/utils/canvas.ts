@@ -46,6 +46,7 @@ async function getUserPref(userr: User): Promise<IUserDB> {
             prefix: "$",
             aliases: [],
             colorAccent: userr.accentColor?.toString(16) || labels.mauve.mocha.hex,
+            noMentionOnLevelUP: false,
             customBackgroundURL: "color"
         }
     }
@@ -249,13 +250,17 @@ export async function leaderboardCanvas(levels: { id: string, value: ILevelDB }[
     ctx.lineWidth = 3
     ctx.fillText(`#${yourRank.rank}`, 15, positionI)
     ctx.stroke()
+
     ctx.globalCompositeOperation = 'difference';
     ctx.fillStyle = labels.text.mocha.hex
     ctx.fillText(`${msg.author.username}#${msg.author.discriminator}`, 50, positionI, 250)
+
     ctx.fillStyle = labels.subtext1.mocha.hex
     ctx.fillText(`•`, 260, positionI)
+
     ctx.fillStyle = labels.text.mocha.hex
     ctx.fillText(`Level ${yourRank.data.level} | Total XP: ${yourRank.data.totalxp.toLocaleString()}`, 280, positionI)
+
     ctx.globalCompositeOperation = 'normal';
     return canvas.toBuffer()
 }

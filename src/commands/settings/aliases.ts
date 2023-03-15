@@ -12,7 +12,8 @@ async function generator(msg: Message, args: string[]) {
             prefix: "$",
             aliases: [],
             colorAccent: msg.author.accentColor?.toString(16) || labels.mauve.mocha.hex,
-            customBackgroundURL: "color"
+            customBackgroundURL: "color",
+            noMentionOnLevelUP: false
         })
     }
     // to prevent from adding useralias to existing aliases smh

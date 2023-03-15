@@ -13,12 +13,13 @@ async function generator(msg: Message, args: string[]) {
             prefix: "$",
             aliases: [],
             colorAccent: msg.author.accentColor?.toString(16) || labels.mauve.mocha.hex,
-            customBackgroundURL: "color"
+            customBackgroundURL: "color",
+            noMentionOnLevelUP: false
         })
     }
     if (args.length > 0) {
         const type = args[0]
-        const value = args[1]
+        let value = args[1]
         if (!value) {
             client.createMessage(msg.channel.id, "Missing value")
             return
@@ -27,12 +28,23 @@ async function generator(msg: Message, args: string[]) {
             client.createMessage(msg.channel.id, "Invalid type: " + type)
             return
         }
-        if (type == "customBackgroundURL" && value != "color") {
-            const s = await fetch(value).then(r => r.status)
-            if (s != 200) {
-                client.createMessage(msg.channel.id, `Oops! The URL you are trying to set returns ${s} status!`)
-                return
-            }
+        switch (type) {
+            case "customBackgroundURL":
+                if (value != "color") {
+                    const s = await fetch(value).then(r => r.status)
+                    if (s != 200) {
+                        client.createMessage(msg.channel.id, `Oops! The URL you are trying to set returns ${s} status!`)
+                        return
+                    }
+                }
+                break
+            case "noMentionOnLevelUP":
+                if (!["true", "false"].includes(value.toLowerCase())) {
+                    client.createMessage(msg.channel.id, `Type "true" or "false", not "${value.toLowerCase()}"`)
+                    return
+                }
+                value = JSON.parse(value.toLowerCase())
+                break
         }
         client.database.user.set(`${msg.author.id}.${type}`, value)
         client.createMessage(msg.channel.id, `Successfully changed for your ${type}!`)
@@ -41,9 +53,10 @@ async function generator(msg: Message, args: string[]) {
     const listAlias = uSettings.aliases.map(m => `**${m.commandTarget}** => (${m.alias.map(n => `\`${n}\``).join(", ")})`).join("\n")
     const e = new MovEmbed()
         .setTitle("User Settings")
-        .setDesc(`Change your user prefix or user alias!\nUse \`${msg.prefix}userconfig <key> <value>\` (where key is in the \`code\` part) to change the configuration!\nUse \`${msg.prefix}aliases\` to manage your aliases!\n\nExample:\n\`${msg.prefix}uconf customBackgroundURL https://url/to/image.jpeg\`\n\`${msg.prefix}uconf prefix \"hey mov, \"\``)
+        .setDesc(`Change your user prefix or user alias!\nUse \`${msg.prefix}userconfig <key> <value>\` (where key is in the \`code\` part) to change the configuration!\nUse \`${msg.prefix}aliases\` to manage your aliases!\n\nExample:\n\`${msg.prefix}uconf customBackgroundURL https://url/to/image.jpeg\`\n\`${msg.prefix}uconf prefix \"hey mov, \"\`\n\`${msg.prefix}uconf noMentionOnLevelUP true\``)
         .addField("Prefix [`prefix`]", uSettings.prefix || "No user prefix", true)
         .addField("Color Accent [`colorAccent`]", uSettings.colorAccent, true)
+        .addField("No mention on level up message [`noMentionOnLevelUP`]", !uSettings.noMentionOnLevelUP ? "No" : "Yes")
         .addField("Background URL [`customBackgroundURL`]", uSettings.customBackgroundURL != "color" ? `[click to view](${uSettings.customBackgroundURL})` : "color")
         .addField("Aliases", uSettings.aliases?.length > 0 ?
             listAlias.length >= 1000 ? listAlias.slice(0, 950) + "... `$aliases` to show more" : listAlias

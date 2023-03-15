@@ -28,12 +28,12 @@
 			"import { client } from \"../client/Client\";",
 			"import { MovPlugin } from \"../client/Plugin\";",
 			"",
-			"export default new MovPlugin(\"$1\", [{",
+			"export default new MovPlugin(\"$1\", {",
 			"    event: \"$2\",",
 			"    run($3) {",
 			"        $4",
 			"    }",
-			"}"
+			"})"
 		]
 	}
 }

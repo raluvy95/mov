@@ -1,29 +1,30 @@
+type ID = string | number
 
 export interface Modules {
     welcome: Partial<{
-        enable: true
-        channelId: string
+        enable: boolean
+        channelId: ID
         message: string
         ignoreBot: boolean
     }>
     goodbye: Partial<{
-        enable: true
-        channelId: string
+        enable: boolean
+        channelId: ID
         message: string
         ignoreBot: boolean
     }>,
     level: Partial<{
         enable: boolean
         lvlup: {
-            channelId: string
+            channelId: ID
             message?: string
         }
         roleRewards: {
-            ID: string,
+            ID: ID,
             level: number
         }[],
-        ignoreChannel: string[]
-        excludeRole: string[]
+        ignoreChannel: ID[]
+        excludeRole: ID[]
         multiplyXP: number,
         maxXP: number,
         minXP: number
@@ -31,13 +32,14 @@ export interface Modules {
     rss: Partial<{
         enable: boolean
         instances: {
+            name: string,
             url: string,
-            channelId: string
+            channelId: string | number
         }[],
         customMsg?: string
     }>,
     bump: Partial<{
-        enable: true
-        roleID?: string
+        enable: boolean
+        roleID?: string | number
     }>
 }

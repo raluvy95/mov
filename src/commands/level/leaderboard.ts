@@ -12,7 +12,8 @@ async function generator(msg: Message, args: string[]) {
         client.createMessage(msg.channel.id, "That's not an number")
         return
     }
-    let page = Number(args[0])
+
+    let page = Math.abs(Number(args[0]))
 
     const all = (await client.database.level.all()).sort((a, b) => {
         return b.value.totalxp - a.value.totalxp

@@ -16,6 +16,7 @@ export interface IUserDB {
     prefix: string,
     colorAccent: string
     aliases: UserAlias[],
+    noMentionOnLevelUP: boolean,
     customBackgroundURL?: string
 }
 
