@@ -6,8 +6,8 @@ import { MovPlugin } from './Plugin';
 // import { Collection } from '@discordjs/collection';
 import EventEmitter from 'events';
 import { Collection } from '@discordjs/collection';
-import { ILevelDB, ISettingsDB, IUserDB } from '../interfaces/database';
-import { getMember } from '../utils/get';
+import { ISettingsDB, IUserDB } from '../interfaces/database';
+import { getMemberByID } from '../utils/get';
 
 export const levelEmitter = new EventEmitter()
 
@@ -244,7 +244,7 @@ class Mov extends CommandClient {
             const roleRewards = levelDB.modules.level.roleRewards
 
             if (roleRewards != undefined && roleRewards.length > 0) {
-                const member = await getMember(user.id)
+                const member = await getMemberByID(user.id)
 
                 const itexist = roleRewards.find(m => m.level == level)
                 if (!itexist) return;
@@ -256,7 +256,7 @@ class Mov extends CommandClient {
 
             const targetChannelID = levelDB.modules.level.lvlup?.channelId.toString()
             const targetMsg = levelDB.modules.level.lvlup?.message || `Congrats {mention}! You reached level **{level}**!`
-            this.createMessage(targetChannelID != undefined && targetChannelID == "0" ? channelId : targetChannelID!,
+            this.createMessage(targetChannelID == undefined || targetChannelID == "0" ? channelId : targetChannelID!,
                 targetMsg.replace("{mention}", target)
                     .replace("{level}", level.toString()))
         })

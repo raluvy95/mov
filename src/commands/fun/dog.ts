@@ -4,12 +4,12 @@ import { MovCommand } from "../../client/Command";
 import fetch from 'node-fetch'
 
 function generator(msg: Message, _args: string[]) {
-    const err = "There's something went wrong with cat. No cat for you :("
+    const err = "There's something went wrong with dog. No dog for you :("
     try {
-        fetch("https://aws.random.cat/meow").then(async r => {
+        fetch("https://dog.ceo/api/breeds/image/random").then(async r => {
             try {
                 const j = await r.json()
-                client.createMessage(msg.channel.id, j.file)
+                client.createMessage(msg.channel.id, j.message)
             } catch {
                 client.createMessage(msg.channel.id, err)
             }
@@ -21,14 +21,13 @@ function generator(msg: Message, _args: string[]) {
     }
 }
 
-class Cat extends MovCommand {
+class Dog extends MovCommand {
     constructor() {
-        super("cat", generator, {
-            aliases: ["kitty"],
-            description: "kittee",
-            usage: "eoijfvefr[ouher[ouewfoi"
+        super("dog", generator, {
+            aliases: ["puppy"],
+            description: "doggieee",
         })
     }
 }
 
-export default new Cat()
+export default new Dog()

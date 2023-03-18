@@ -4,7 +4,7 @@ import { client } from './client/Client';
 import { debug } from './utils/debug';
 
 process.on("unhandledRejection", (rej) => {
-    console.error(rej)
+    console.error(rej);
 })
 
 process.on("uncaughtException", (rej) => {

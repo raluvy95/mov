@@ -4,7 +4,7 @@ import { Message, User } from "eris";
 import { ILevelDB, IUserDB } from "../interfaces/database";
 import { client } from "../client/Client";
 import { getLeaderboardRank } from "./getLeaderboardRank";
-import { getUser } from "./get";
+import { getUserByID } from "./get";
 
 registerFont("./assets/Roboto-Bold.ttf", {
     family: "RobotoB"
@@ -23,8 +23,8 @@ async function progressBar(ctx: CanvasRenderingContext2D, level: ILevelDB, color
     ctx.closePath()
 
     // too small to fit
+    ctx.fillStyle = coloraccent
     if (fillN > 5) {
-        ctx.fillStyle = coloraccent
         ctx.beginPath()
         ctx.roundRect(x, y, fillN, height, 10)
         ctx.fill()
@@ -123,7 +123,7 @@ function rankTxt(ctx: CanvasRenderingContext2D, rank: number, x: number, y: numb
 export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
 
     const { colorAccent, customBackgroundURL } = await getUserPref(user)
-    const canvas = createCanvas(350, 155)
+    const canvas = createCanvas(450, 155)
     const ctx = canvas.getContext("2d")
 
     await generateBg(canvas, ctx, user)
@@ -132,8 +132,12 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     if (customBackgroundURL !== "color") {
         ctx.globalAlpha = 0.5
     }
+
+
+    const canvasContent = { w: (canvas.width - canvas.width / 3) + 50, h: canvas.height - 20 }
+
     ctx.beginPath()
-    ctx.roundRect(20, 10, canvas.width - 40, canvas.height - 20, 10)
+    ctx.roundRect(20, 10, canvasContent.w, canvasContent.h, 10)
     ctx.fill()
     ctx.closePath()
 
@@ -146,20 +150,25 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     ctx.font = "16px 'RobotoB'"
     ctx.fillStyle = labels.text.mocha.hex
     const { width } = ctx.measureText(name)
-    ctx.fillText(name, canvas.width / 2 - width / 2, canvas.height - 15)
+    ctx.fillText(name, canvasContent.w / 4 - width / 2, canvas.height - 15)
+
+    ctx.fillStyle = labels.overlay2.mocha.hex
+    const totalXPstr = `Total XP: ${level.totalxp.toLocaleString()}`
+    const ttttwidth = ctx.measureText(totalXPstr)
+    ctx.fillText(totalXPstr, canvasContent.w / 1.5 - ttttwidth.width / 2, canvas.height - 15)
 
     ctx.fillStyle = colorAccent
     ctx.font = "46px 'RobotoB'"
     const txtLvl = `Level ${level.level}`
     const t = ctx.measureText(txtLvl)
-    ctx.fillText(txtLvl, (canvas.width / 2 - t.width / 2) + 35, (canvas.height / 2) + 10)
+    ctx.fillText(txtLvl, (canvasContent.w / 2 - t.width / 2) + 35, (canvas.height / 2) + 10)
 
-    progressBar(ctx, level, colorAccent, canvas.width - 60, 20, 30, (canvas.height / 2) + 25)
+    progressBar(ctx, level, colorAccent, canvasContent.w - 30, 20, 30, (canvas.height / 2) + 25)
 
     const leaderboardRank = await getLeaderboardRank(user.id)
     ctx.fillStyle = labels.overlay0.mocha.hex
     ctx.font = "20px 'RobotoB'"
-    rankTxt(ctx, leaderboardRank.rank, (canvas.width / 2 - t.width / 2) + 35, (canvas.height / 2) - 30)
+    rankTxt(ctx, leaderboardRank.rank, (canvasContent.w / 2 - t.width / 2) + 35, (canvas.height / 2) - 30)
 
     return canvas.toBuffer()
 }
@@ -173,7 +182,7 @@ async function leaderboardContent(ctx: CanvasRenderingContext2D, canvas: Canvas,
     ctx.fill()
     ctx.closePath()
 
-    const u = await getUser(entry.id, true)
+    const u = await getUserByID(entry.id, true)
     const name = u ? u.username + "#" + u.discriminator : entry.id
 
     ctx.fillStyle = labels.text.mocha.hex
@@ -210,7 +219,10 @@ export async function leaderboardCanvas(levels: { id: string, value: ILevelDB }[
     ctx.fillStyle = labels.crust.mocha.hex
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+    if (page == 0) page + 1
+
     let rank: number = (page - 1) * 15
+
     let index = 0
 
     for (const entry of levels) {

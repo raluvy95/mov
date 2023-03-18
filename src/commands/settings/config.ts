@@ -5,7 +5,7 @@ import { MovEmbed } from "../../client/Embed";
 import { ISettingsDB } from "../../interfaces/database";
 import { Modules } from "../../interfaces/module";
 import { dateToString } from "../../utils/dateToString";
-import { getMember } from "../../utils/get";
+import { getMemberByID } from "../../utils/get";
 import { EXAMPLE, VARIABLES } from "./.examples"
 
 async function generator(msg: Message, args: string[]) {
@@ -96,7 +96,7 @@ async function generator(msg: Message, args: string[]) {
                 return
         }
     } else {
-        const botAsMember = await getMember(client.user.id)
+        const botAsMember = await getMemberByID(client.user.id)
         e.setTitle("Bot Settings")
             .setDesc(`The prefix is \`${settings.prefix}\`. Added on ${dateToString(new Date(botAsMember!.joinedAt!))}\n\nView the detailed module using \`${settings.prefix}config <module>\``)
         for (const [k, v] of Object.entries(settings.modules)) {

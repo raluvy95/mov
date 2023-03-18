@@ -27,14 +27,14 @@ async function generator(msg: Message, args: string[]) {
         )
     if (args.length < 1 || !isNaN(Number(args[0]))) {
         let page = !isNaN(Number(args[0])) ? Number(args[0]) : 1
-        const maxPage = Number((uSettings.aliases.length / 20).toFixed())
+        const maxPage = Number((uSettings.aliases.length / 20).toFixed(1))
 
         if (page > maxPage) {
             page = maxPage
         }
 
         const e = new MovEmbed()
-            .setTitle(`User aliases [${uSettings.aliases.length}]`)
+            .setTitle(`User aliases [${uSettings.aliases.flatMap(m => m.alias).length}]`)
             .setDesc(`If you want to modify your aliases, use \`${msg.prefix}aliases add <alias name> <target>\` or \`${msg.prefix}aliases remove <alias name>\`\nYou cannot have user alias if it conflicts with command name, its build-in aliases AND your user alias`)
         if (uSettings.aliases.length < 1) {
             e.addField("No aliases?", "you don't have any user aliases set")
@@ -83,6 +83,7 @@ async function generator(msg: Message, args: string[]) {
             }
             client.createMessage(msg.channel.id, `Successfully added alias ${name}!`)
             break
+
         case "remove":
         case "rm":
             const existingAlias = uSettings.aliases.find(m => m.alias.includes(name))
@@ -94,6 +95,7 @@ async function generator(msg: Message, args: string[]) {
             uSettings.aliases.splice(uSettings.aliases.findIndex(m => m.commandTarget == existingAlias.commandTarget), 1)
             uSettings.aliases.push(existingAlias)
             break
+
         default:
             client.createMessage(msg.channel.id, "Invalid action")
             return

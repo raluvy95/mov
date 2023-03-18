@@ -31,9 +31,15 @@ async function generator(msg: Message, args: string[]) {
         switch (type) {
             case "customBackgroundURL":
                 if (value != "color") {
-                    const s = await fetch(value).then(r => r.status)
-                    if (s != 200) {
-                        client.createMessage(msg.channel.id, `Oops! The URL you are trying to set returns ${s} status!`)
+                    try {
+                        const s = await fetch(value).then(r => r.status)
+                        if (s != 200) {
+                            client.createMessage(msg.channel.id, `Oops! The URL you are trying to set returns ${s} status!`)
+                            return
+                        }
+                    } catch (e) {
+                        console.error(e)
+                        client.createMessage(msg.channel.id, `Invalid URL or rare error occured.`)
                         return
                     }
                 }

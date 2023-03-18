@@ -82,7 +82,7 @@ export class MovEmbed implements Embed {
         return this
     }
 
-    setTimestamp(time: string | Date) {
+    setTimestamp(time: string | Date | undefined) {
         this.timestamp = time
         return this
     }

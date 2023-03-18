@@ -1,8 +1,8 @@
-import { Message, PossiblyUncachedTextable, TextableChannel } from "eris";
+import { Message } from "eris";
 import { client, levelEmitter } from "../client/Client";
 import { MovPlugin } from "../client/Plugin";
 import { ILevelDB, ISettingsDB } from "../interfaces/database";
-import { getUser } from "../utils/get";
+import { getUserByID } from "../utils/get";
 
 const EMPTY_LEVEL = {
     xp: 0,
@@ -52,8 +52,7 @@ async function run(msg: Message<any>) {
         level.xp = 0
 
         if ('id' in msg.channel && typeof msg.channel.id == "string") {
-            console.log(msg.channel)
-            levelEmitter.emit('lvlUP', msg.channel.id, await getUser(msg.author.id), level.level)
+            levelEmitter.emit('lvlUP', msg.channel.id, await getUserByID(msg.author.id), level.level)
         } else {
             throw new Error("Failed to submit level up greeting!")
         }

@@ -1,4 +1,3 @@
-import { client } from "../client/Client";
 import { MovPlugin } from "../client/Plugin";
 import { greeting } from "../utils/greeting";
 
