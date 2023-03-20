@@ -23,7 +23,10 @@ async function generator(msg: Message, args: string[]) {
 
 class IP extends MovCommand {
     constructor() {
-        super("ip", generator, {})
+        super("ip", generator, {
+            description: "Get information from specific IP",
+            cooldown: 5 * 1000
+        })
     }
 }
 

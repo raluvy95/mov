@@ -3,11 +3,11 @@ import { CmdStatDB, LevelDB, MovDB, SettingsDB, UserDB } from './Database';
 import { readdirSync } from 'fs';
 import { MovCommand } from './Command';
 import { MovPlugin } from './Plugin';
-// import { Collection } from '@discordjs/collection';
 import EventEmitter from 'events';
 import { Collection } from '@discordjs/collection';
 import { ISettingsDB, IUserDB } from '../interfaces/database';
 import { getMemberByID } from '../utils/get';
+import { Track } from 'shoukaku';
 
 export const levelEmitter = new EventEmitter()
 
@@ -22,13 +22,15 @@ class Mov extends CommandClient {
 
     public database: ClientDatabase
     public cooldownLevel: Map<string, number>
+    public queue: Collection<string, Track>
 
     constructor() {
         if (!process.env.DISCORD_TOKEN) throw new Error("The env DISCORD_TOKEN is undefined")
         if (!process.env.SERVER_ID) throw new Error("The env SERVER_ID is undefined");
         super(process.env.DISCORD_TOKEN, {
             intents: ["guildMembers", "guildMessages", "guilds", "guildMembers",
-                "guildMessageReactions", "guildWebhooks", "guildEmojis"],
+                "guildMessageReactions", "guildWebhooks", "guildEmojis",
+                "guildVoiceStates"],
             restMode: true,
         }, {
             prefix: ["$", "sudo "],
@@ -53,6 +55,8 @@ class Mov extends CommandClient {
         };
 
         this.cooldownLevel = new Collection();
+
+        this.queue = new Collection();
 
         (async () => await this.init())()
     }
@@ -186,7 +190,6 @@ class Mov extends CommandClient {
         const userPref = await this.database.user.get<IUserDB>(msg.author.id)
         if ((msg.prefix as any) = await this.checkPrefixMod(msg)) {
             this.commandHandler(msg, userPref || undefined)
-
         }
     }
 
@@ -212,6 +215,10 @@ class Mov extends CommandClient {
         // Event (also called as Plugin) handler
         const plugins = readdirSync("./build/plugins")
         this.on("messageCreate", this.onMessageCreate)
+        this.on("messageUpdate", (msg, oldMsg) => {
+            if (oldMsg?.content == msg.content) return;
+            this.onMessageCreate(msg)
+        })
         for (const plugin of plugins) {
             try {
                 const plug: { default: MovPlugin<any> } = await import(`../plugins/${plugin}`)
@@ -246,19 +253,21 @@ class Mov extends CommandClient {
             if (roleRewards != undefined && roleRewards.length > 0) {
                 const member = await getMemberByID(user.id)
 
-                const itexist = roleRewards.find(m => m.level == level)
-                if (!itexist) return;
+                const itexist = roleRewards.filter(m => m.level == level)
+                if (!itexist || itexist.length < 1) return;
 
-                member.addRole(itexist.ID.toString(), `Role rewards - reached level ${level}`).catch(err => {
-                    console.warn("Cannot added member's role due to\n", err)
-                })
+                for (const role of itexist) {
+                    await member.addRole(role.ID.toString(), `Role rewards - reached level ${level}`).catch(err => {
+                        console.warn("Cannot added member's role due to\n", err)
+                    })
+                }
             }
 
             const targetChannelID = levelDB.modules.level.lvlup?.channelId.toString()
             const targetMsg = levelDB.modules.level.lvlup?.message || `Congrats {mention}! You reached level **{level}**!`
             this.createMessage(targetChannelID == undefined || targetChannelID == "0" ? channelId : targetChannelID!,
                 targetMsg.replace("{mention}", target)
-                    .replace("{level}", level.toString()))
+                    .replace("{level}", level.toString())).catch(e => console.error("Failed to send lvl up message", e))
         })
     }
 }

@@ -44,7 +44,10 @@ async function generator(msg: Message, args: string[]) {
 class Qalculate extends MovCommand {
     constructor() {
         super("qalculate", generator, {
-            aliases: ["qalc", "calc", "calculator", "qcalc"]
+            aliases: ["qalc", "calc", "calculator", "qcalc"],
+            description: "Calculate basic math and more!",
+            usage: "[value]",
+            cooldown: 5 * 1000
         })
     }
 }

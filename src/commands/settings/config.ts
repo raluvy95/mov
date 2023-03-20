@@ -110,6 +110,7 @@ class Config extends MovCommand {
     constructor() {
         super("config", generator, {
             aliases: ["settings", "conf"],
+            description: "Bot settings - configure to change bot's behaviour",
             requirements: {
                 permissions: {
                     administrator: true

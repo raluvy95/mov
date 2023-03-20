@@ -43,7 +43,7 @@ async function generator(msg: Message, args: string[]) {
 class Leaderboard extends MovCommand {
     constructor() {
         super("leaderboard", generator, {
-            aliases: ["lb", "levels", "ranks", "lboard"]
+            aliases: ["lb", "levels", "lboard"]
         })
     }
 }

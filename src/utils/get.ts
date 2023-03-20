@@ -10,6 +10,14 @@ export async function getUserByID(id: string, cacheOnly?: boolean) {
     }
 }
 
+export async function getGuildByID(id: string) {
+    const cache = client.guilds.get(id)
+    if (!cache) {
+        return await client.getRESTGuild(id, false)
+    }
+    return cache
+}
+
 export async function getMemberByID(id: string) {
     const cache = client.guilds.get(process.env.SERVER_ID!)
     if (!cache) {

@@ -31,7 +31,8 @@
         "eris": "^0.17.2",
         "eris-collect": "^1.1.1",
         "node-fetch": "^2.6.9",
-        "quick.db": "^9.0.8"
+        "quick.db": "^9.0.8",
+        "shoukaku": "^3.3.1"
     },
     "private": true,
     "repository": {

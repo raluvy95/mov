@@ -27,7 +27,7 @@ async function generator(msg: Message, args: string[]) {
         )
     if (args.length < 1 || !isNaN(Number(args[0]))) {
         let page = !isNaN(Number(args[0])) ? Number(args[0]) : 1
-        const maxPage = Number((uSettings.aliases.length / 20).toFixed(1))
+        const maxPage = Math.ceil(uSettings.aliases.length / 20)
 
         if (page > maxPage) {
             page = maxPage

@@ -25,8 +25,8 @@ class Cat extends MovCommand {
     constructor() {
         super("cat", generator, {
             aliases: ["kitty"],
-            description: "kittee",
-            usage: "eoijfvefr[ouher[ouewfoi"
+            description: "kittee (ignore what usage says lmao)",
+            usage: "fwryeyyrjetehrgtcefrxaexfewstrhyeser4d"
         })
     }
 }

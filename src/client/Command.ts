@@ -25,6 +25,7 @@ export class MovCommand {
             },
             guildOnly: true,
             useBasicArgSplit: false,
+            permissionMessage: "You don't have any permission lol",
             ...options
         }
     }

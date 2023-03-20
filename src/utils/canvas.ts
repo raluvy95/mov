@@ -149,9 +149,16 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
 
     ctx.font = "16px 'RobotoB'"
     ctx.fillStyle = labels.text.mocha.hex
-    const { width } = ctx.measureText(name)
-    ctx.fillText(name, canvasContent.w / 4 - width / 2, canvas.height - 15)
+    let size = 16
+    let nameW = ctx.measureText(name)
+    while ((canvasContent.w / 4 - nameW.width / 2) < 20) {
+        size--
+        ctx.font = `${size}px 'RobotoB'`
+        nameW = ctx.measureText(name)
+    }
+    ctx.fillText(name, canvasContent.w / 4 - nameW.width / 2, canvas.height - 15)
 
+    ctx.font = "16px 'RobotoB'"
     ctx.fillStyle = labels.overlay2.mocha.hex
     const totalXPstr = `Total XP: ${level.totalxp.toLocaleString()}`
     const ttttwidth = ctx.measureText(totalXPstr)
@@ -205,7 +212,16 @@ async function leaderboardContent(ctx: CanvasRenderingContext2D, canvas: Canvas,
     }
     ctx.fillText(`#${rank + 1}`, 15, contentIndex + 20)
     ctx.fillStyle = labels.text.mocha.hex
+    let size = 16
+    let nameN = ctx.measureText(name)
+    while (nameN.width > 200) {
+        size--
+        ctx.font = `${size}px 'RobotoB'`
+        nameN = ctx.measureText(name)
+    }
     ctx.fillText(name, 50, contentIndex + 20, 250)
+
+    ctx.font = "16px 'RobotoB'"
     ctx.fillStyle = labels.subtext1.mocha.hex
     ctx.fillText(`•`, 260, contentIndex + 20)
     ctx.fillStyle = labels.text.mocha.hex
@@ -264,13 +280,22 @@ export async function leaderboardCanvas(levels: { id: string, value: ILevelDB }[
     ctx.stroke()
 
     ctx.globalCompositeOperation = 'difference';
-    ctx.fillStyle = labels.text.mocha.hex
-    ctx.fillText(`${msg.author.username}#${msg.author.discriminator}`, 50, positionI, 250)
+    ctx.fillStyle = "#ffffff"
+    const name = `${msg.author.username}#${msg.author.discriminator}`
+    let size = 16
+    let nameN = ctx.measureText(name)
+    while (nameN.width > 200) {
+        size--
+        ctx.font = `${size}px 'RobotoB'`
+        nameN = ctx.measureText(name)
+    }
+    ctx.fillText(name, 50, positionI, 250)
 
+    ctx.font = "16px 'RobotoB'"
     ctx.fillStyle = labels.subtext1.mocha.hex
     ctx.fillText(`•`, 260, positionI)
 
-    ctx.fillStyle = labels.text.mocha.hex
+    ctx.fillStyle = "#ffffff"
     ctx.fillText(`Level ${yourRank.data.level} | Total XP: ${yourRank.data.totalxp.toLocaleString()}`, 280, positionI)
 
     ctx.globalCompositeOperation = 'normal';

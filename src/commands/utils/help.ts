@@ -37,6 +37,8 @@ async function generator(msg: Message, args: string[]) {
                 ])
             client.createMessage(msg.channel.id, emb.build())
             return
+        } else if (args[0] == "--show") {
+
         }
     }
     emb.setTitle(`Help command - ${Object.keys(client.commands).length} commands`)
@@ -48,6 +50,8 @@ async function generator(msg: Message, args: string[]) {
         for (const cmd of commands) {
             const command = cmd.split(".")[0]
             if (client.commands[command] != undefined) {
+                const c = client.commands[command]
+                if (c.hidden) continue;
                 registeredCommand.push(command)
             }
         }
@@ -60,7 +64,11 @@ async function generator(msg: Message, args: string[]) {
 
 class Help extends MovCommand {
     constructor() {
-        super("help", generator, {})
+        super("help", generator, {
+            description: "Help command",
+            usage: "[command name]",
+            cooldown: 5 * 1000
+        })
     }
 }
 

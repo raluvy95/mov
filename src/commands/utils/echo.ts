@@ -8,7 +8,9 @@ function generator(msg: Message, args: string[]) {
 
 class Echo extends MovCommand {
     constructor() {
-        super("echo", generator, {})
+        super("echo", generator, {
+            description: "Sends back to your arguments",
+        })
     }
 }
 

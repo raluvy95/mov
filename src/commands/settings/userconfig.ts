@@ -59,7 +59,7 @@ async function generator(msg: Message, args: string[]) {
     const listAlias = uSettings.aliases.map(m => `**${m.commandTarget}** => (${m.alias.map(n => `\`${n}\``).join(", ")})`).join("\n")
     const e = new MovEmbed()
         .setTitle("User Settings")
-        .setDesc(`Change your user prefix or user alias!\nUse \`${msg.prefix}userconfig <key> <value>\` (where key is in the \`code\` part) to change the configuration!\nUse \`${msg.prefix}aliases\` to manage your aliases!\n\nExample:\n\`${msg.prefix}uconf customBackgroundURL https://url/to/image.jpeg\`\n\`${msg.prefix}uconf prefix \"hey mov, \"\`\n\`${msg.prefix}uconf noMentionOnLevelUP true\``)
+        .setDesc(`Use \`${msg.prefix}help userconfig\` to check out how to edit and examples!`)
         .addField("Prefix [`prefix`]", uSettings.prefix || "No user prefix", true)
         .addField("Color Accent [`colorAccent`]", uSettings.colorAccent, true)
         .addField("No mention on level up message [`noMentionOnLevelUP`]", !uSettings.noMentionOnLevelUP ? "No" : "Yes")
@@ -73,7 +73,8 @@ async function generator(msg: Message, args: string[]) {
 class UserSettings extends MovCommand {
     constructor() {
         super("userconfig", generator, {
-            aliases: ["uconfig", "uconf", "userconf", "usersettings", "usettings"]
+            aliases: ["uconfig", "uconf", "userconf", "usersettings", "usettings"],
+            description: "User settings - configure user alias and preferencies\n" + `Change your user prefix or user alias!\nUse \`$userconfig <key> <value>\` (where key is in the \`code\` part) to change the configuration!\nUse \`$aliases\` to manage your aliases!\n\nExample:\n\`$uconf customBackgroundURL https://url/to/image.jpeg\`\n\`$uconf prefix \"hey mov, \"\`\n\`$uconf noMentionOnLevelUP true\``
         })
     }
 }
