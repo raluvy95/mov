@@ -7,7 +7,6 @@ import EventEmitter from 'events';
 import { Collection } from '@discordjs/collection';
 import { ISettingsDB, IUserDB } from '../interfaces/database';
 import { getMemberByID } from '../utils/get';
-import { Track } from 'shoukaku';
 
 export const levelEmitter = new EventEmitter()
 
@@ -22,7 +21,6 @@ class Mov extends CommandClient {
 
     public database: ClientDatabase
     public cooldownLevel: Map<string, number>
-    public queue: Collection<string, Track>
 
     constructor() {
         if (!process.env.DISCORD_TOKEN) throw new Error("The env DISCORD_TOKEN is undefined")
@@ -55,8 +53,6 @@ class Mov extends CommandClient {
         };
 
         this.cooldownLevel = new Collection();
-
-        this.queue = new Collection();
 
         (async () => await this.init())()
     }
