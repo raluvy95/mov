@@ -254,12 +254,13 @@ class Mov extends CommandClient {
                 const member = await getMemberByID(user.id)
 
                 const itexist = roleRewards.filter(m => m.level == level)
-                if (!itexist || itexist.length < 1) return;
-
-                for (const role of itexist) {
-                    await member.addRole(role.ID.toString(), `Role rewards - reached level ${level}`).catch(err => {
-                        console.warn("Cannot added member's role due to\n", err)
-                    })
+                if (itexist && itexist.length > 0) {
+                    for (const role of itexist) {
+                        if (member.roles.findIndex(m => m == role.ID) != -1) continue;
+                        await member.addRole(role.ID.toString(), `Role rewards - reached level ${level}`).catch(err => {
+                            console.warn("Cannot added member's role due to\n", err)
+                        })
+                    }
                 }
             }
 

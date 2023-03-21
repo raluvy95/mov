@@ -60,16 +60,22 @@ async function generator(msg: Message, args: string[]) {
             if (e.reason == "STOPPED") {
                 client.queue.clear()
                 client.leaveVoiceChannel(userIsOnVoice)
+                return
             }
 
             console.log(client.queue.size)
             if (client.queue.size < 1) {
                 client.leaveVoiceChannel(userIsOnVoice)
-                client.createMessage(msg.channel.id, `Quitted because there's nothing to play`)
+                client.createMessage(msg.channel.id, `I left because there's nothing to play`)
                 return
             } else {
                 const trackToBeRemoved = client.queue.first()!
                 client.queue.delete(trackToBeRemoved.track)
+                if (client.queue.size < 1) {
+                    client.leaveVoiceChannel(userIsOnVoice)
+                    client.createMessage(msg.channel.id, `I left because there's nothing to play`)
+                    return
+                }
                 const nextTrack = client.queue.first()
                 player?.playTrack(nextTrack!)
             }
@@ -78,7 +84,7 @@ async function generator(msg: Message, args: string[]) {
     if (player.listenerCount("start") < 1) {
         player.on("start", t => {
             const currentPlayer = client.queue.get(t.track)
-            client.createMessage(msg.channel.id, `**${currentPlayer?.info.title}** is now playing`)
+            client.createMessage(msg.channel.id, `**${!currentPlayer?.info.title ? "Unknown" : currentPlayer.info.title}** is now playing`)
         })
     }
 }
