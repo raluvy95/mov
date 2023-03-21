@@ -173,7 +173,7 @@ class Mov extends CommandClient {
         if (msg.author.bot) return;
         (msg.command as any) = false;
 
-        if (msg.mentions.includes(this.user)) {
+        if (msg.mentions.includes(this.user) && msg.type == 19) {
             const userPref = await this.database.user.get<IUserDB>(msg.author.id)
             const server = await this.database.settings.get<ISettingsDB>(msg.guildID!)
             const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : ''

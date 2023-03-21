@@ -3,7 +3,14 @@ import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 
 function generator(msg: Message, args: string[]) {
-    client.createMessage(msg.channel.id, args.join(" "))
+    if (!args.length) {
+        client.createMessage(msg.channel.id, "Where is my arguments??????????")
+        return
+    }
+    client.createMessage(msg.channel.id, args.join(" ") + `\n\n  *- ${msg.author.username}*`).catch(() => {
+        client.createMessage(msg.channel.id, "There was an error. Try again")
+        return
+    })
 }
 
 class Echo extends MovCommand {

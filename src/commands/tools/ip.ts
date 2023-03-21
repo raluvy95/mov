@@ -14,7 +14,7 @@ async function generator(msg: Message, args: string[]) {
         client.createMessage(msg.channel.id, "That's not an IP")
         return
     }
-    const jj = await fetch(`https://ipinfo.io/${args[0]}/geo`)
+    const jj = await fetch(`https://ipinfo.io/${encodeURIComponent(args[0])}/geo`)
     const info = await jj.json()
     const e = new MovEmbed()
         .setTitle(`IP: ${info.ip}`)
