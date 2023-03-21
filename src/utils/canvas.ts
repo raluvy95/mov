@@ -235,10 +235,9 @@ export async function leaderboardCanvas(levels: { id: string, value: ILevelDB }[
     ctx.fillStyle = labels.crust.mocha.hex
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    if (page == 0) page + 1
+    if (page == 0) page = + 1
 
     let rank: number = (page - 1) * 15
-
     let index = 0
 
     for (const entry of levels) {
