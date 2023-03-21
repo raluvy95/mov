@@ -51,6 +51,9 @@ async function generator(msg: Message, args: string[]) {
                 }
                 value = JSON.parse(value.toLowerCase())
                 break
+            case "prefix":
+                value = value.replace(/"/g, '')
+                break
         }
         client.database.user.set(`${msg.author.id}.${type}`, value)
         client.createMessage(msg.channel.id, `Successfully changed for your ${type}!`)

@@ -151,6 +151,9 @@ class Mov extends CommandClient {
             prefixes = this.guildPrefixes[msg.channel.guild.id];
         }
         if (typeof prefixes === "string") {
+            if (!msg.content.replace(/<@!/g, "<@").startsWith(prefixes) && typeof server?.prefix === "string") {
+                prefixes = server?.prefix
+            }
             return msg.content.replace(/<@!/g, "<@").startsWith(prefixes) && prefixes;
         } else if (Array.isArray(prefixes)) {
             return prefixes.find((prefix) => msg.content.replace(/<@!/g, "<@").startsWith(prefix));
@@ -179,11 +182,11 @@ class Mov extends CommandClient {
             const server = await this.database.settings.get<ISettingsDB>(msg.guildID!)
             const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : ''
             const responseS = server?.prefix ? `The bot's prefix is \`${server.prefix}\`` : ''
-            const com = responseU + "%" + responseS
+            const com = responseU + " " + responseS
             if (com.length == 1) {
                 client.createMessage(msg.channel.id, "Hello! You can response me with mention! Use `@" + this.user.username + " help` to get started!")
             } else {
-                client.createMessage(msg.channel.id, `Hey!\n${com.split("%").join("\n")}`)
+                client.createMessage(msg.channel.id, `Hey!\n${com}`)
             }
         }
 

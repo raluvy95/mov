@@ -12,6 +12,7 @@ async function generator(msg: Message, args: string[]) {
     }
     if (isIP(args[0]) == 0) {
         client.createMessage(msg.channel.id, "That's not an IP")
+        return
     }
     const jj = await fetch(`https://ipinfo.io/${args[0]}/geo`)
     const info = await jj.json()
