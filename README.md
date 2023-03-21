@@ -31,7 +31,7 @@ Download the zip file from
 only `qalc` binary and then place inside `bin` directory. Not tested on
 Windows/Mac OS, but please pull request if you have tested on other platform!
 
-# Lavalink
+## Lavalink
 
 This bot now supports lavalink for music purpose If you have lavalink up
 running, you can set the variables in the .env file
