@@ -121,7 +121,7 @@ function rankTxt(ctx: CanvasRenderingContext2D, rank: number, x: number, y: numb
 }
 
 export async function checkURLValidity(url: string): Promise<Boolean> {
-    const canvas = createCanvas(450, 155)
+    const canvas = createCanvas(100, 100)
     const ctx = canvas.getContext("2d")
 
     try {
