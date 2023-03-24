@@ -32,8 +32,7 @@ async function generator(msg: Message, args: string[]) {
             case "customBackgroundURL":
                 if (value != "color") {
                     let out = await checkURLValidity(value)
-                    if(!out)
-                    {
+                    if (!out) {
                         client.createMessage(msg.channel.id, `Invalid URL.`)
                         return;
                     }
@@ -48,6 +47,15 @@ async function generator(msg: Message, args: string[]) {
                 break
             case "prefix":
                 value = value.replace(/"/g, '')
+                break
+            case "aliases":
+                client.createMessage(msg.channel.id, `Use \`${msg.prefix}aliases\` to manage your aliases!`)
+                return
+            case "prefix":
+                if (value.length >= 32) {
+                    client.createMessage(msg.channel.id, `Your prefix has reached the limit of character! (32 max)`)
+                    return
+                }
                 break
         }
         client.database.user.set(`${msg.author.id}.${type}`, value)

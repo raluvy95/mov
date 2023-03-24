@@ -32,20 +32,25 @@ async function generator(msg: Message, args: string[]) {
         if (page > maxPage) {
             page = maxPage
         }
-
-        const e = new MovEmbed()
-            .setTitle(`User aliases [${uSettings.aliases.flatMap(m => m.alias).length}]`)
-            .setDesc(`If you want to modify your aliases, use \`${msg.prefix}aliases add <alias name> <target>\` or \`${msg.prefix}aliases remove <alias name>\`\nYou cannot have user alias if it conflicts with command name, its build-in aliases AND your user alias`)
-        if (uSettings.aliases.length < 1) {
-            e.addField("No aliases?", "you don't have any user aliases set")
-        } else {
-            for (const alias of uSettings.aliases.slice((page - 1) * 20, page * 20)) {
-                e.addField(`Target: ${alias.commandTarget}`, alias.alias.map(m => `\`${m}\``).join(", "))
+        try {
+            const e = new MovEmbed()
+                .setTitle(`User aliases [${uSettings.aliases.flatMap(m => m.alias).length}]`)
+                .setDesc(`If you want to modify your aliases, use \`${msg.prefix}aliases add <alias name> <target>\` or \`${msg.prefix}aliases remove <alias name>\`\nYou cannot have user alias if it conflicts with command name, its build-in aliases AND your user alias`)
+            if (uSettings.aliases.length < 1) {
+                e.addField("No aliases?", "you don't have any user aliases set")
+            } else {
+                for (const alias of uSettings.aliases.slice((page - 1) * 20, page * 20)) {
+                    e.addField(`Target: ${alias.commandTarget}`, alias.alias.map(m => `\`${m}\``).join(", "))
+                }
+                e.setFooter(`Page ${page}/${maxPage}`, msg.author.avatarURL)
             }
-            e.setFooter(`Page ${page}/${maxPage}`, msg.author.avatarURL)
+            client.createMessage(msg.channel.id, e.build())
+            return
+        } catch (e) {
+            console.error(e)
+            client.createMessage(msg.channel.id, `There was an error viewing your aliases. Please contact the developer for this!`)
+            return
         }
-        client.createMessage(msg.channel.id, e.build())
-        return
     }
     const action = args[0]
     const name = args[1]
@@ -65,6 +70,10 @@ async function generator(msg: Message, args: string[]) {
                 client.createMessage(msg.channel.id, "What's that alias for? (Missing target command)")
                 return
             }
+            if (name.length >= 150) {
+                client.createMessage(msg.channel.id, "Cannot create alias longer than 150 characters")
+                return
+            }
             const cmd = client.resolveCommand(target)
             if (!cmd) {
                 client.createMessage(msg.channel.id, "That target command is not found.")
@@ -81,7 +90,7 @@ async function generator(msg: Message, args: string[]) {
                 uSettings.aliases.splice(uSettings.aliases.findIndex(m => m.commandTarget == cmd.label), 1)
                 uSettings.aliases.push(existingCmd)
             }
-            client.createMessage(msg.channel.id, `Successfully added alias ${name}!`)
+            client.createMessage(msg.channel.id, `Successfully added alias \`${name}\`!`)
             break
 
         case "remove":
