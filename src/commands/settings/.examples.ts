@@ -23,7 +23,7 @@ set multiplyXP 2
 set maxXP 50
 set minXP 30`,
     rss: `
-add instances {"name": "New instance", "url": "https://url.to.rss", "channelId": 1234567890123}
+add instances {"name": "New instance", "url": "https://url.to.rss", "channelId": "1234567890123"}
 set customMsg New news just dropped! {link}`,
     bump: `
 set roleID 1234567890123`
