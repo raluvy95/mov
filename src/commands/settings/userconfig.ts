@@ -1,10 +1,10 @@
 import { labels } from "@catppuccin/palette";
 import { Message } from "eris";
-import fetch from "node-fetch";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
 import { IUserDB } from "../../interfaces/database";
+import { checkURLValidity } from "../../utils/canvas";
 
 async function generator(msg: Message, args: string[]) {
     let uSettings = await client.database.user.get<IUserDB>(msg.author.id)
@@ -31,16 +31,11 @@ async function generator(msg: Message, args: string[]) {
         switch (type) {
             case "customBackgroundURL":
                 if (value != "color") {
-                    try {
-                        const s = await fetch(value).then(r => r.status)
-                        if (s != 200) {
-                            client.createMessage(msg.channel.id, `Oops! The URL you are trying to set returns ${s} status!`)
-                            return
-                        }
-                    } catch (e) {
-                        console.error(e)
-                        client.createMessage(msg.channel.id, `Invalid URL or rare error occured.`)
-                        return
+                    let out = await checkURLValidity(value)
+                    if(!out)
+                    {
+                        client.createMessage(msg.channel.id, `Invalid URL.`)
+                        return;
                     }
                 }
                 break

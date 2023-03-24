@@ -120,6 +120,19 @@ function rankTxt(ctx: CanvasRenderingContext2D, rank: number, x: number, y: numb
     ctx.fillText(`#${rank}`, x, y)
 }
 
+export async function checkURLValidity(url: string): Promise<Boolean> {
+    const canvas = createCanvas(100, 100)
+    const ctx = canvas.getContext("2d")
+
+    try {
+        const img = await loadImage(url)
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        return true
+    } catch {
+        return false
+    }
+}
+
 export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
 
     const { colorAccent, customBackgroundURL } = await getUserPref(user)
