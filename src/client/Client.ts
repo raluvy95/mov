@@ -10,7 +10,7 @@ import { getMemberByID } from '../utils/get';
 
 export const levelEmitter = new EventEmitter()
 
-interface ClientDatabase {
+export interface ClientDatabase {
     level: MovDB
     settings: MovDB
     user: MovDB,
