@@ -2,6 +2,7 @@
 
 # CatNowBot - codename "Mov"
 
+[![Node](https://github.com/raluvy95/mov/actions/workflows/node.yml/badge.svg)](https://github.com/raluvy95/mov/actions/workflows/node.yml)<br>
 An open source self-hostable Discord bot written in Eris framework. Most likely
 a replacement for [Jolly](https://github.com/raluvy95/jolly)
 
