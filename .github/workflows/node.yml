@@ -10,7 +10,24 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  nodev16:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: npm install
+      - name: TypeScript lint
+        run: npx tsc --noEmit
+
+  nodev18:
     runs-on: ubuntu-latest
 
     steps:
