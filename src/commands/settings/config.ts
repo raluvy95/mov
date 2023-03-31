@@ -78,9 +78,9 @@ async function generator(msg: Message, args: string[]) {
             case 'set':
                 try {
                     try {
-                        await client.database.settings.set<ISettingsDB>(`${msg.guildID!}.modules.${modulee}.${key}`, JSON.parse(value))
+                        await client.database.settings.set(`${msg.guildID!}.modules.${modulee}.${key}`, JSON.parse(value))
                     } catch {
-                        await client.database.settings.set<ISettingsDB>(`${msg.guildID!}.modules.${modulee}.${key}`, value)
+                        await client.database.settings.set(`${msg.guildID!}.modules.${modulee}.${key}`, value)
                     }
                     client.createMessage(msg.channel.id, `Successfully set!`)
                 } catch (e) {

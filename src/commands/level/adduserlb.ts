@@ -13,17 +13,17 @@ async function generator(msg: Message, args: string[]) {
     }
     if (await client.database.level.has(userId)) {
         client.database.level.set<ILevelDB>(userId, {
-            xp,
-            level,
-            totalxp: xp
+            xp: Number(xp),
+            level: Number(level),
+            totalxp: Number(xp)
         })
         client.createMessage(msg.channel.id, "That user is already exist, but I will overwrite it.")
         return
     }
     client.database.level.set<ILevelDB>(userId, {
-        xp,
-        level,
-        totalxp: xp
+        xp: Number(xp),
+        level: Number(level),
+        totalxp: Number(xp)
     })
     client.createMessage(msg.channel.id, `Successfully set for \`${userId}\`'s level and xp`)
     return
