@@ -8,7 +8,7 @@ import { ISettingsDB, IUserDB } from '../interfaces/database';
 
 export interface ClientDatabase {
     level: MovDB
-    settings: MovDB
+    settings: SettingsDB
     user: MovDB,
     cmdStat: MovDB
 }
