@@ -19,6 +19,10 @@ export default new MovPlugin("messageReference", {
                 let result: MessageContent = {}
                 let file: FileContent[] = []
                 const msgRef = await client.getMessage(channelId, messageId)
+                if ('nsfw' in msgRef.channel) {
+                    if (msgRef.channel.nsfw) return;
+                    if (!(msgRef.channel.permissionsOf(msg.author.id)).json.readMessages) return
+                }
                 const e = new MovEmbed()
                     .setFooter(msgRef.author.username, msgRef.author.avatarURL)
                     .setTitle("Message Reference (click to jump)")
@@ -43,6 +47,7 @@ export default new MovPlugin("messageReference", {
                     for (const em of msgRef.embeds) {
                         result.embeds?.push(em)
                     }
+                    result.embeds?.slice(0, 9)
                 }
                 client.createMessage(msg.channel.id, result, file)
             } catch { return; }
