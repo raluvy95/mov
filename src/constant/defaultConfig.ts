@@ -1,8 +1,19 @@
-import { ISettingsDB } from "../interfaces/database";
+import { labels } from "@catppuccin/palette";
+import { ISettingsDB, IUserDB } from "../interfaces/database";
 
 export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
     prefix: "$",
     modules: {
+        autopost: {
+            enable: false,
+            instances: [
+                {
+                    name: "lol",
+                    channelId: "12345678234567",
+                    subreddits: ["memes", "dankmemes"]
+                }
+            ]
+        },
         welcome: {
             enable: false,
             channelId: "channel ID",
@@ -24,7 +35,7 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
             instances: [
                 {
                     name: "new thing",
-                    url: "URL",
+                    url: ["URL"],
                     channelId: "12324567890123456"
                 }
             ]
@@ -40,6 +51,21 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
             maxXP: 25,
             minXP: 15,
             multiplyXP: 1
+        },
+        autopublish: {
+            enable: false
+        },
+        messageReference: {
+            enable: true
         }
     }
+}
+
+export const DEFAULT_USER_SETTINGS: IUserDB = {
+    prefix: "$",
+    aliases: [],
+    colorAccent: labels.mauve.mocha.hex,
+    noMentionOnLevelUP: false,
+    customBackgroundURL: "color",
+    useLegacyRank: false
 }

@@ -5,6 +5,7 @@ import { ILevelDB, IUserDB } from "../interfaces/database";
 import { client } from "../client/Client";
 import { getLeaderboardRank } from "./getLeaderboardRank";
 import { getUserByID } from "./get";
+import { DEFAULT_USER_SETTINGS } from "../constant/defaultConfig";
 
 registerFont("./assets/Roboto-Bold.ttf", {
     family: "RobotoB"
@@ -41,16 +42,7 @@ async function progressBar(ctx: CanvasRenderingContext2D, level: ILevelDB, color
 
 async function getUserPref(userr: User): Promise<IUserDB> {
     const user = await client.database.user.get<IUserDB>(userr.id)
-    if (!user) {
-        return {
-            prefix: "$",
-            aliases: [],
-            colorAccent: userr.accentColor?.toString(16) || labels.mauve.mocha.hex,
-            noMentionOnLevelUP: false,
-            customBackgroundURL: "color"
-        }
-    }
-    return user
+    return user || DEFAULT_USER_SETTINGS
 }
 
 async function genAvatar(ctx: CanvasRenderingContext2D, user: User, x: number, y: number, round?: boolean): Promise<void> {
@@ -147,7 +139,7 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     }
 
 
-    const canvasContent = { w: (canvas.width - canvas.width / 3) + 50, h: canvas.height - 20 }
+    const canvasContent = { w: canvas.width - 45, h: canvas.height - 20 }
 
     ctx.beginPath()
     ctx.roundRect(20, 10, canvasContent.w, canvasContent.h, 10)

@@ -51,7 +51,11 @@ function generator(msg: Message, args: string[]) {
 class Reset extends MovCommand {
     constructor() {
         super("reset", generator, {
-            description: "Reset specific or all tables to default or empty."
+            description: "Reset specific or all tables to default or empty.",
+            requirements: {
+                userIDs: process.env.OWNER_ID!.split(" ")
+            },
+            hidden: true
         })
     }
 }

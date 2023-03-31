@@ -42,7 +42,7 @@ class removeUserXP extends MovCommand {
                     administrator: true
                 }
             },
-
+            cooldown: 60 * 1000
         })
     }
 }

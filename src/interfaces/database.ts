@@ -17,6 +17,7 @@ export interface IUserDB {
     colorAccent: string
     aliases: UserAlias[],
     noMentionOnLevelUP: boolean,
+    useLegacyRank: boolean,
     customBackgroundURL?: string
 }
 

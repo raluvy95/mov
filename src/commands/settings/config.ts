@@ -6,7 +6,6 @@ import { ISettingsDB } from "../../interfaces/database";
 import { Modules } from "../../interfaces/module";
 import { dateToString } from "../../utils/dateToString";
 import { getMemberByID } from "../../utils/get";
-import { EXAMPLE, VARIABLES } from "./.examples"
 
 async function generator(msg: Message, args: string[]) {
     const settings = await client.database.settings.get<ISettingsDB>(msg.guildID!)
@@ -20,7 +19,7 @@ async function generator(msg: Message, args: string[]) {
     }
 
     if (args.length >= 1) {
-        const modulee = args[0].toLowerCase()
+        const modulee = args[0]
         const subcommand = args[1]
         if (!subcommand) {
             if (modulee == "json") {
@@ -33,9 +32,7 @@ async function generator(msg: Message, args: string[]) {
                 const modul = settings.modules[modulee as keyof Modules]
                 e.setTitle(`View detailed for ${modulee} in JSON`)
                     .setDesc(`\`\`\`json\n${JSON.stringify(modul, null, 4)}\n\`\`\``)
-                    .addField("How to set the values?", `Use ${msg.prefix}conf ${modulee} set <key> <value>\nTo change prefix for this bot, please use \`${msg.prefix}prefix <value>\`\n\nYou can also use \`add\` or \`remove\` subcommand to add new value if key's type is [an array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) (doesn't support multiple key sadly)`)
-                    .addField("Example arguments", EXAMPLE[modulee as keyof Modules].split("\n").map(m => `\`${m.length < 1 ? "set enable false" : m}\``).join("\n"))
-                    .addField("Variables", VARIABLES[modulee as keyof Modules].length < 1 ? "No variables" : VARIABLES[modulee as keyof Modules])
+                    .addField("How to set the values?", `Use ${msg.prefix}examples to view all`)
                 client.createMessage(msg.channel.id, e.build())
                 return
             }

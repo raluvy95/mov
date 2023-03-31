@@ -1,20 +1,14 @@
-import { labels } from "@catppuccin/palette";
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
+import { DEFAULT_USER_SETTINGS } from "../../constant/defaultConfig";
 import { IUserDB } from "../../interfaces/database";
 
 async function generator(msg: Message, args: string[]) {
     let uSettings = await client.database.user.get<IUserDB>(msg.author.id)
     if (!uSettings) {
-        uSettings = await client.database.user.set<IUserDB>(msg.author.id, {
-            prefix: "$",
-            aliases: [],
-            colorAccent: msg.author.accentColor?.toString(16) || labels.mauve.mocha.hex,
-            customBackgroundURL: "color",
-            noMentionOnLevelUP: false
-        })
+        uSettings = await client.database.user.set<IUserDB>(msg.author.id, DEFAULT_USER_SETTINGS)
     }
     // to prevent from adding useralias to existing aliases smh
     const allCommandsNameAndAliases = Object.values(client.commands)

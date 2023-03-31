@@ -19,18 +19,24 @@ export default new MovPlugin("rss", {
             if (rss.instances.length < 1) return;
 
             for (const instance of rss.instances) {
-                const cached = await cache.get<string>(instance.url)
-                const parsed = await parse(instance.url)
-                const latestContent = parsed.items[0]
+                for (const url of instance.url) {
+                    try {
+                        const cached = await cache.get<string>(url)
+                        const parsed = await parse(url)
+                        const latestContent = parsed.items[0]
 
-                if (!cached || latestContent.link != cached) {
-                    const content = !rss.customMsg ? "📰 | {url}" : rss.customMsg
-                    await summonWebhook(instance.channelId.toString(), {
-                        username: instance.name,
-                        content: content.replace("{url}", latestContent.link)
-                            .replace("{title}", latestContent.title)
-                    })
-                    cache.set(instance.url, latestContent.link)
+                        if (!cached || latestContent.link != cached) {
+                            const content = !rss.customMsg ? "📰 | {url}" : rss.customMsg
+                            await summonWebhook(instance.channelId.toString(), {
+                                username: instance.name,
+                                content: content.replace("{url}", latestContent.link)
+                                    .replace("{title}", latestContent.title)
+                            })
+                            cache.set(url, latestContent.link)
+                        }
+                    } catch (e) {
+                        console.error(e)
+                    }
                 }
             }
         }, 60 * 1000 * 25)

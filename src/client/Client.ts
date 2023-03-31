@@ -1,14 +1,10 @@
-import { CommandClient, GeneratorFunctionReturn, Message, TextableChannel, User } from 'eris';
+import { CommandClient, GeneratorFunctionReturn, Message, TextableChannel } from 'eris';
 import { CmdStatDB, LevelDB, MovDB, SettingsDB, UserDB } from './Database';
 import { readdirSync } from 'fs';
 import { MovCommand } from './Command';
 import { MovPlugin } from './Plugin';
-import EventEmitter from 'events';
 import { Collection } from '@discordjs/collection';
 import { ISettingsDB, IUserDB } from '../interfaces/database';
-import { getMemberByID } from '../utils/get';
-
-export const levelEmitter = new EventEmitter()
 
 export interface ClientDatabase {
     level: MovDB
@@ -173,14 +169,14 @@ class Mov extends CommandClient {
         if (msg.author.bot) return;
         (msg.command as any) = false;
 
-        if (msg.mentions.includes(this.user) && msg.type == 19) {
+        if (msg.mentions.includes(this.user) && msg.type == 0) {
             const userPref = await this.database.user.get<IUserDB>(msg.author.id)
             const server = await this.database.settings.get<ISettingsDB>(msg.guildID!)
             const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : ''
             const responseS = server?.prefix ? `The bot's prefix is \`${server.prefix}\`` : ''
             const com = responseU + " " + responseS
             if (com.length == 1) {
-                client.createMessage(msg.channel.id, "Hello! You can response me with mention! Use `@" + this.user.username + " help` to get started!")
+                client.createMessage(msg.channel.id, "Hello! You can response me with mention! Use `<@" + this.user.username + "> help` to get started!")
             } else {
                 client.createMessage(msg.channel.id, `Hey!\n${com}`)
             }
@@ -236,38 +232,6 @@ class Mov extends CommandClient {
 
         this.on("ready", () => {
             console.log(`Logged as ${this.user.username}#${this.user.discriminator}!`)
-        })
-
-        levelEmitter.on('lvlUP', async (channelId: string, user: User, level: number) => {
-            const userPref = await this.database.user.get<IUserDB>(user.id)
-            const levelDB = (await this.database.settings.get<ISettingsDB>(process.env.SERVER_ID!))!
-
-            let target = `<@${user.id}>`
-            if (userPref?.noMentionOnLevelUP) {
-                target = `**${user.username}#${user.discriminator}**`
-            }
-
-            const roleRewards = levelDB.modules.level.roleRewards
-
-            if (roleRewards != undefined && roleRewards.length > 0) {
-                const member = await getMemberByID(user.id)
-
-                const itexist = roleRewards.filter(m => m.level == level)
-                if (itexist && itexist.length > 0) {
-                    for (const role of itexist) {
-                        if (member.roles.findIndex(m => m == role.ID) != -1) continue;
-                        await member.addRole(role.ID.toString(), `Role rewards - reached level ${level}`).catch(err => {
-                            console.warn("Cannot added member's role due to\n", err)
-                        })
-                    }
-                }
-            }
-
-            const targetChannelID = levelDB.modules.level.lvlup?.channelId.toString()
-            const targetMsg = levelDB.modules.level.lvlup?.message || `Congrats {mention}! You reached level **{level}**!`
-            this.createMessage(targetChannelID == undefined || targetChannelID == "0" ? channelId : targetChannelID!,
-                targetMsg.replace("{mention}", target)
-                    .replace("{level}", level.toString())).catch(e => console.error("Failed to send lvl up message", e))
         })
     }
 }

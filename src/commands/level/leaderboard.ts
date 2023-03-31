@@ -2,7 +2,9 @@ import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
+import { IUserDB } from "../../interfaces/database";
 import { leaderboardCanvas } from "../../utils/canvas";
+import { legacyLeaderboard } from "../../utils/legacy";
 
 async function generator(msg: Message, args: string[]) {
     if (!args[0]) {
@@ -25,6 +27,11 @@ async function generator(msg: Message, args: string[]) {
 
     if (page > maxPage) {
         page = maxPage
+    }
+    const legacy = await client.database.user.get<IUserDB>(msg.author.id)
+    if (legacy?.useLegacyRank) {
+        await legacyLeaderboard(filtered, msg, page, maxPage)
+        return
     }
     const img = await leaderboardCanvas(filtered, msg, page)
     const e = new MovEmbed()

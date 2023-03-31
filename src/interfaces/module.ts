@@ -1,30 +1,36 @@
-type ID = string | number
-
 export interface Modules {
+    autopost: Partial<{
+        enable: boolean,
+        instances: {
+            name: string,
+            channelId: string,
+            subreddits: string[]
+        }[]
+    }>,
     welcome: Partial<{
         enable: boolean
-        channelId: ID
+        channelId: string
         message: string
         ignoreBot: boolean
     }>
     goodbye: Partial<{
         enable: boolean
-        channelId: ID
+        channelId: string
         message: string
         ignoreBot: boolean
     }>,
     level: Partial<{
         enable: boolean
         lvlup: {
-            channelId: ID
+            channelId: string
             message?: string
         }
         roleRewards: {
-            ID: ID,
+            ID: string,
             level: number
         }[],
-        ignoreChannel: ID[]
-        excludeRole: ID[]
+        ignoreChannel: string[]
+        excludeRole: string[]
         multiplyXP: number,
         maxXP: number,
         minXP: number
@@ -33,13 +39,19 @@ export interface Modules {
         enable: boolean
         instances: {
             name: string,
-            url: string,
-            channelId: string | number
+            url: string[],
+            channelId: string
         }[],
         customMsg?: string
     }>,
     bump: Partial<{
         enable: boolean
-        roleID?: string | number
+        roleID?: string
+    }>,
+    autopublish: Partial<{
+        enable: boolean
+    }>,
+    messageReference: Partial<{
+        enable: boolean
     }>
 }

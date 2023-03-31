@@ -1,21 +1,15 @@
-import { labels } from "@catppuccin/palette";
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
+import { DEFAULT_USER_SETTINGS } from "../../constant/defaultConfig";
 import { IUserDB } from "../../interfaces/database";
 import { checkURLValidity } from "../../utils/canvas";
 
 async function generator(msg: Message, args: string[]) {
     let uSettings = await client.database.user.get<IUserDB>(msg.author.id)
     if (!uSettings) {
-        uSettings = await client.database.user.set<IUserDB>(msg.author.id, {
-            prefix: "$",
-            aliases: [],
-            colorAccent: msg.author.accentColor?.toString(16) || labels.mauve.mocha.hex,
-            customBackgroundURL: "color",
-            noMentionOnLevelUP: false
-        })
+        uSettings = await client.database.user.set<IUserDB>(msg.author.id, DEFAULT_USER_SETTINGS)
     }
     if (args.length > 0) {
         const type = args[0]
@@ -38,6 +32,7 @@ async function generator(msg: Message, args: string[]) {
                     }
                 }
                 break
+            case "useLegacyRank":
             case "noMentionOnLevelUP":
                 if (!["true", "false"].includes(value.toLowerCase())) {
                     client.createMessage(msg.channel.id, `Type "true" or "false", not "${value.toLowerCase()}"`)
@@ -45,13 +40,11 @@ async function generator(msg: Message, args: string[]) {
                 }
                 value = JSON.parse(value.toLowerCase())
                 break
-            case "prefix":
-                value = value.replace(/"/g, '')
-                break
             case "aliases":
                 client.createMessage(msg.channel.id, `Use \`${msg.prefix}aliases\` to manage your aliases!`)
                 return
             case "prefix":
+                value = value.replace(/"/g, '')
                 if (value.length >= 32) {
                     client.createMessage(msg.channel.id, `Your prefix has reached the limit of character! (32 max)`)
                     return
@@ -68,7 +61,8 @@ async function generator(msg: Message, args: string[]) {
         .setDesc(`Use \`${msg.prefix}help userconfig\` to check out how to edit and examples!`)
         .addField("Prefix [`prefix`]", uSettings.prefix || "No user prefix", true)
         .addField("Color Accent [`colorAccent`]", uSettings.colorAccent, true)
-        .addField("No mention on level up message [`noMentionOnLevelUP`]", !uSettings.noMentionOnLevelUP ? "No" : "Yes")
+        .addField("No mention on level up message [`noMentionOnLevelUP`]", !uSettings.noMentionOnLevelUP ? "No" : "Yes", true)
+        .addField("Use legacy rank [`useLegacyRank`]", !uSettings.useLegacyRank ? "No" : "Yes", true)
         .addField("Background URL [`customBackgroundURL`]", uSettings.customBackgroundURL != "color" ? `[click to view](${uSettings.customBackgroundURL})` : "color")
         .addField("Aliases", uSettings.aliases?.length > 0 ?
             listAlias.length >= 1000 ? listAlias.slice(0, 950) + "... `$aliases` to show more" : listAlias

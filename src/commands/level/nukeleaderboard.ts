@@ -26,10 +26,9 @@ class NukeLeaderboard extends MovCommand {
         super("nukeleaderboard", generator, {
             aliases: ["nukelb", "removeallxp", "removealllb", "nukexp"],
             requirements: {
-                permissions: {
-                    administrator: true
-                }
-            }
+                userIDs: process.env.OWNER_ID!.split(" ")
+            },
+            hidden: true
         })
     }
 }

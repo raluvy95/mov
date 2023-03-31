@@ -1,4 +1,4 @@
-import { Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage, MessageContent } from "eris";
+import { Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage } from "eris";
 import { COLORS } from "../constant/color";
 import { EMBED } from "../constant/globalLimit";
 
@@ -105,9 +105,13 @@ export class MovEmbed implements Embed {
         return this
     }
 
-    build(): MessageContent {
+    return(): [this] {
+        return [this]
+    }
+
+    build(): { embeds: [MovEmbed] } {
         return {
-            embeds: [this],
+            embeds: this.return(),
         }
     }
 }
