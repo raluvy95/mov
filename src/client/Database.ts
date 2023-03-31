@@ -20,7 +20,7 @@ export class SettingsDB extends MovDB {
         this.init()
     }
 
-    private async init() {
+    async init() {
         if (!await this.has(this.guildID)) {
             console.log("Setting up default config for first time")
             await this.set(this.guildID, DEFAULT_SERVER_SETTINGS)
