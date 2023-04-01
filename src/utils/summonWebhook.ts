@@ -9,7 +9,7 @@ export async function summonWebhook(channelId: string, opts: WebhookPayload) {
         webhook = webhoo
         break
     }
-    if (!webhook || webhook.token) {
+    if (!webhook || !webhook.token) {
         const newWebhook = await client.createChannelWebhook(channelId, {
             name: "Mov Webhook"
         })

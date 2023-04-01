@@ -8,25 +8,25 @@ export async function getSubreddit(subreddit: string, opt: {
     noNSFW?: boolean,
     mediaOnly?: boolean
 } = { limit: 10, includeStickied: false, noNSFW: true, mediaOnly: false }) {
-    const anyContent = await fetch(`https://reddit.com/r/${subreddit}.json?limit=${opt.limit}`).then(r => r.json())
+    const anyContent = await fetch(`https://reddit.com/r/${encodeURIComponent(subreddit)}.json?limit=${opt.limit}`).then(r => r.json())
     if (anyContent.error) {
         throw new Error(`${anyContent.error}: ${anyContent.message}`)
     }
-    const data = (anyContent as Root).data.children.map(m => m.data)
+    let data = (anyContent as Root).data.children.map(m => m.data)
     if (opt.includeStickied) {
-        return data.filter(m => !m.stickied)
+        data = data.filter(m => !m.stickied)
     }
     if (opt.noNSFW) {
-        return data.filter(m => !m.over_18)
+        data = data.filter(m => !m.over_18)
     }
     if (opt.mediaOnly) {
-        return data.filter(m => !!m.url.match(/.*(\.jp(e?)g$|\.png$|\.gif$)/g))
+        data = data.filter(m => !!m.url.match(/.*(\.jp(e?)g$|\.png$|\.gif$)/g))
     }
     return data
 }
 
 export function parseToEmbed(children: Data2) {
-    const realUTC = children.created * 1000
+    const realUTC = (children.created || children.created_utc) * 1000
     const source = "https://reddit.com/" + children.permalink
 
     const e = new MovEmbed()
@@ -38,7 +38,7 @@ export function parseToEmbed(children: Data2) {
     if (children.selftext.length > 0) {
         e.setDesc(children.selftext.length >= 2000 ? children.selftext.slice(0, 2000) + `\n[view more](${source})` : children.selftext)
     }
-    if (!children.url.match(/.*(\.jp(e?)g$|\.png$|\.gif$)/g)) {
+    if (!children.url.match(/http(s)?:\/\/.*(\.jpe?g$|\.png$|\.gif$)/g) && children.thumbnail !== "self") {
         e.setThumb(children.thumbnail)
     } else {
         e.setImage(children.url)
