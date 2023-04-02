@@ -13,7 +13,7 @@ export async function getSubreddit(subreddit: string, opt: {
         throw new Error(`${anyContent.error}: ${anyContent.message}`)
     }
     let data = (anyContent as Root).data.children.map(m => m.data)
-    if (opt.includeStickied) {
+    if (!opt.includeStickied) {
         data = data.filter(m => !m.stickied)
     }
     if (opt.noNSFW) {
@@ -27,10 +27,10 @@ export async function getSubreddit(subreddit: string, opt: {
 
 export function parseToEmbed(children: Data2) {
     const realUTC = (children.created || children.created_utc) * 1000
-    const source = "https://reddit.com/" + children.permalink
+    const source = "https://reddit.com" + children.permalink
 
     const e = new MovEmbed()
-        .setTitle(`${children.title}`)
+        .setTitle(`${children.title.slice(0, 255)}`)
         .setFooter(`u/${children.author} | r/${children.subreddit}`)
         .setURL(source)
         .setTimestamp(new Date(realUTC))
@@ -47,5 +47,9 @@ export function parseToEmbed(children: Data2) {
         e.setImage(Object.values(children.media_metadata)[0].p[0].u)
     }
 
-    return e.build()
+    if (children.is_video) {
+        e.setDesc(`[Click to see video](${children.url})`)
+    }
+
+    return e
 }

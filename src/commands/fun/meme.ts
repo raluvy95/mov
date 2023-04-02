@@ -12,7 +12,7 @@ async function generator(msg: Message, _args: string[]) {
     })
 
     const pickedContent = pick(r)
-    client.createMessage(msg.channel.id, parseToEmbed(pickedContent))
+    client.createMessage(msg.channel.id, parseToEmbed(pickedContent).build())
 }
 
 class Meme extends MovCommand {

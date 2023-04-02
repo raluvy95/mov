@@ -14,7 +14,7 @@ async function generator(msg: Message, args: string[]) {
     try {
         contents = await getSubreddit(args.join("_"), {
             includeStickied: false,
-            limit: 25
+            limit: 20
         })
     } catch (e) {
         client.createMessage(msg.channel.id, `${e}`)
@@ -26,7 +26,7 @@ async function generator(msg: Message, args: string[]) {
     }
 
     const orgMsg = await client.createMessage(msg.channel.id, {
-        ...parseToEmbed(contents[page]),
+        ...parseToEmbed(contents[page]).setAuthor(`Page ${page + 1}/${contents.length}`).build(),
         components: [
             {
                 type: 1,
@@ -66,7 +66,6 @@ async function generator(msg: Message, args: string[]) {
             if (!i.acknowledged) {
                 await i.acknowledge({ type: 7 })
             }
-            console.log(contents.length)
             switch ((i.data! as any).custom_id) {
                 case "back":
                     if (page <= 0) {
@@ -74,7 +73,7 @@ async function generator(msg: Message, args: string[]) {
                     } else {
                         page--
                     }
-                    await i.editMessage(orgMsg.id, { ...parseToEmbed(contents[page]) })
+                    await i.editMessage(orgMsg.id, { ...parseToEmbed(contents[page]).setAuthor(`Page ${page + 1}/${contents.length}`).build() })
                     break
                 case "forward":
                     if (page >= (contents.length - 1)) {
@@ -82,7 +81,7 @@ async function generator(msg: Message, args: string[]) {
                     } else {
                         page++
                     }
-                    await i.editMessage(orgMsg.id, { ...parseToEmbed(contents[page]) })
+                    await i.editMessage(orgMsg.id, { ...parseToEmbed(contents[page]).setAuthor(`Page ${page + 1}/${contents.length}`).build() })
                     break
                 case "stop":
                     await i.editMessage(orgMsg.id, { components: [] })
