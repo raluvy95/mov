@@ -53,5 +53,10 @@ export interface Modules {
     }>,
     messageReference: Partial<{
         enable: boolean
+    }>,
+    clock: Partial<{
+        enable: boolean,
+        timezone: string,
+        channelId: string
     }>
 }

@@ -35,7 +35,8 @@ set roleID 1234567890123`,
 add instances {"name": "memes", "channelId": "12345678901234", "subreddits": ["memes", "dankmemes"]}
 set instances [{"name": "memes", "channelId": "12345678901234", "subreddits": ["memes", "dankmemes"]}]`,
     autopublish: '',
-    messageReference: ''
+    messageReference: '',
+    clock: ''
 }
 
 export const VARIABLES: base = {
@@ -61,7 +62,8 @@ export const VARIABLES: base = {
     bump: ``,
     autopost: ``,
     autopublish: '',
-    messageReference: ''
+    messageReference: '',
+    clock: ''
 }
 
 function generator(msg: Message, _args: string[]) {

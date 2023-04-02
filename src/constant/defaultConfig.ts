@@ -4,6 +4,11 @@ import { ISettingsDB, IUserDB } from "../interfaces/database";
 export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
     prefix: "$",
     modules: {
+        clock: {
+            enable: false,
+            channelId: "1234567897654321",
+            timezone: "Europe/London"
+        },
         autopost: {
             enable: false,
             instances: [
