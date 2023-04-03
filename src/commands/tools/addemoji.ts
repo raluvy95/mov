@@ -62,7 +62,13 @@ async function generator(msg: Message, args: string[]) {
 
 class AddEmoji extends MovCommand {
     constructor() {
-        super("addemoji", generator, {})
+        super("addemoji", generator, {
+            requirements: {
+                permissions: {
+                    createEmoji: true
+                }
+            }
+        })
     }
 }
 
