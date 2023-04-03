@@ -3,7 +3,6 @@ import { client } from "../client/Client";
 import { MovDB } from "../client/Database";
 import { MovPlugin } from "../client/Plugin";
 import { ISettingsDB } from "../interfaces/database";
-import { debug } from "../utils/debug";
 import { summonWebhook } from "../utils/summonWebhook";
 
 const cache = new MovDB("cache")
@@ -25,9 +24,11 @@ export default new MovPlugin("rss", {
                         const cached = await cache.get<string>(url)
                         const parsed = await parse(url)
                         const latestContent = parsed.items[0]
-
+                        if (Array.isArray(latestContent.link)) {
+                            // Atom support
+                            latestContent.link = latestContent.link[0].href
+                        }
                         if (!cached || latestContent.link != cached) {
-                            debug(latestContent.link, url)
                             const content = !rss.customMsg ? "📰 | {url}" : rss.customMsg
                             await summonWebhook(instance.channelId.toString(), {
                                 username: instance.name,
