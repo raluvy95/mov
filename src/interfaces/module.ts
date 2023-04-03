@@ -46,7 +46,8 @@ export interface Modules {
     }>,
     bump: Partial<{
         enable: boolean
-        roleID?: string
+        roleID?: string,
+        bumpRewards: boolean
     }>,
     autopublish: Partial<{
         enable: boolean

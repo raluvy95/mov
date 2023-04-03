@@ -305,3 +305,12 @@ export async function leaderboardCanvas(levels: { id: string, value: ILevelDB }[
     ctx.globalCompositeOperation = 'normal';
     return canvas.toBuffer()
 }
+
+export async function urlToDataURI(url: string) {
+    const img = await loadImage(url)
+    const canvas = new Canvas(img.width, img.height, "image")
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(img, 0, 0)
+
+    return canvas.toDataURL()
+}

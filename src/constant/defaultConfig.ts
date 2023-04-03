@@ -33,7 +33,8 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
         },
         bump: {
             enable: true,
-            roleID: "0"
+            roleID: "0",
+            bumpRewards: true
         },
         rss: {
             enable: false,
@@ -73,4 +74,10 @@ export const DEFAULT_USER_SETTINGS: IUserDB = {
     noMentionOnLevelUP: false,
     customBackgroundURL: "color",
     useLegacyRank: false
+}
+
+export const EMPTY_LEVEL = {
+    xp: 0,
+    level: 0,
+    totalxp: 0
 }

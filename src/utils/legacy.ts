@@ -5,7 +5,7 @@ import { client } from "../client/Client";
 import { MovEmbed } from "../client/Embed";
 import { ILevelDB, ISettingsDB } from "../interfaces/database";
 import { getLeaderboardRank } from "./getLeaderboardRank";
-import { formulaXP } from "./formulaXP";
+import { formulaXP } from "./levelUtils";
 
 function progressBar(currentXP: number, requiredXP: number): string {
     const fill = "🟩"
