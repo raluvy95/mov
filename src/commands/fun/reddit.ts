@@ -2,6 +2,7 @@ import { AutocompleteInteraction, CommandInteraction, ComponentInteraction, Mess
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { Data2 } from "../../interfaces/reddit";
+import { makeid } from "../../utils/makeid";
 import { getSubreddit, parseToEmbed } from "../../utils/reddit";
 
 async function generator(msg: Message, args: string[]) {
@@ -12,9 +13,10 @@ async function generator(msg: Message, args: string[]) {
     let page = 0
     let contents: Data2[] | null = null
     try {
-        contents = await getSubreddit(args.join("_"), {
+        contents = await getSubreddit(args.join("_").replace(/^r\//, ''), {
             includeStickied: false,
-            limit: 20
+            limit: 20,
+            noNSFW: 'nsfw' in msg.channel ? !msg.channel.nsfw : true
         })
     } catch (e) {
         client.createMessage(msg.channel.id, `${e}`)
@@ -23,8 +25,10 @@ async function generator(msg: Message, args: string[]) {
     if (!contents) return;
     if (contents.length < 1) {
         client.createMessage(msg.channel.id, `Empty content? You either look for empty subreddit or the subreddit is full of nsfw`)
+        return
     }
 
+    const id = makeid(4)
     const orgMsg = await client.createMessage(msg.channel.id, {
         ...parseToEmbed(contents[page]).setAuthor(`Page ${page + 1}/${contents.length}`).build(),
         components: [
@@ -32,7 +36,7 @@ async function generator(msg: Message, args: string[]) {
                 type: 1,
                 components: [
                     {
-                        custom_id: "back",
+                        custom_id: `back_${id}`,
                         type: 2,
                         style: 2,
                         emoji: {
@@ -40,7 +44,7 @@ async function generator(msg: Message, args: string[]) {
                         }
                     },
                     {
-                        custom_id: "forward",
+                        custom_id: `forward_${id}`,
                         type: 2,
                         style: 2,
                         emoji: {
@@ -49,7 +53,7 @@ async function generator(msg: Message, args: string[]) {
                     },
                     {
 
-                        custom_id: "stop",
+                        custom_id: `stop_${id}`,
                         type: 2,
                         style: 4,
                         emoji: {
@@ -60,6 +64,10 @@ async function generator(msg: Message, args: string[]) {
             }
         ]
     })
+
+    if (client.listenerCount("interactionCreate") > 0) {
+        client.removeAllListeners("interactionCreate")
+    }
     async function interactionCreate(i: PingInteraction | CommandInteraction | ComponentInteraction | AutocompleteInteraction | UnknownInteraction) {
         if (!contents) return;
         if (i.type === 3) {
@@ -67,7 +75,7 @@ async function generator(msg: Message, args: string[]) {
                 await i.acknowledge({ type: 7 })
             }
             switch ((i.data! as any).custom_id) {
-                case "back":
+                case `back_${id}`:
                     if (page <= 0) {
                         page = 0
                     } else {
@@ -75,7 +83,7 @@ async function generator(msg: Message, args: string[]) {
                     }
                     await i.editMessage(orgMsg.id, { ...parseToEmbed(contents[page]).setAuthor(`Page ${page + 1}/${contents.length}`).build() })
                     break
-                case "forward":
+                case `forward_${id}`:
                     if (page >= (contents.length - 1)) {
                         page = contents.length - 1
                     } else {
@@ -83,7 +91,7 @@ async function generator(msg: Message, args: string[]) {
                     }
                     await i.editMessage(orgMsg.id, { ...parseToEmbed(contents[page]).setAuthor(`Page ${page + 1}/${contents.length}`).build() })
                     break
-                case "stop":
+                case `stop_${id}`:
                     await i.editMessage(orgMsg.id, { components: [] })
                     client.removeListener("interactionCreate", interactionCreate)
                     break

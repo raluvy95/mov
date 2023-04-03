@@ -53,7 +53,7 @@ export async function legacyLeaderboard(levels: { id: string, value: ILevelDB }[
         .setTitle("Leaderboard")
         .setThumb(client.guilds.get(msg.guildID!)?.iconURL || client.user.staticAvatarURL)
     let result = '';
-    let position = page;
+    let position = (page == 0 ? page : page - 1) * 15;
     function award(position: number) {
         switch (position) {
             case 1:

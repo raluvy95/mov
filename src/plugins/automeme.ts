@@ -22,9 +22,11 @@ export default new MovPlugin("AutoMeme", {
                 const picked = pick(subreddit)
 
                 try {
+                    const channel = client.getChannel(instance.channelId)
                     const fetchAPI = await getSubreddit(picked, {
                         limit: 25,
-                        mediaOnly: true
+                        mediaOnly: true,
+                        noNSFW: 'nsfw' in channel ? !channel.nsfw : true
                     })
 
                     if (fetchAPI.length < 1) {

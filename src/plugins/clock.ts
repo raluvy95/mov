@@ -48,6 +48,7 @@ export default new MovPlugin("clock", {
                 case "11":
                     emoji = '🕚'
                     break
+                case "0":
                 case "12":
                     emoji = '🕛'
                     break
@@ -57,6 +58,6 @@ export default new MovPlugin("clock", {
                     name: `${emoji} | ${dateToString(new Date(), { clockOnly: true, includesTimezone: true, timezone: clock.timezone })}`
                 })
             }
-        }, 1000 * 60 * 10)
+        }, 1000 * 60 * 15)
     }
 })

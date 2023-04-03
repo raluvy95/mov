@@ -36,9 +36,9 @@ async function run(msg: Message<any>) {
         client.cooldownLevel.delete(user);
     }, ca);
 
-    const maxXP = 25
-    const minXP = 15
-    const multiplyXP = 1
+    const maxXP = lvl.modules.level.maxXP ?? 25
+    const minXP = lvl.modules.level.minXP ?? 15
+    const multiplyXP = lvl.modules.level.multiplyXP ?? 1
 
     const addXP = Math.floor(Math.random() * (maxXP! - minXP! + 1)) + minXP;
     level.xp += addXP * multiplyXP
