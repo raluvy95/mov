@@ -38,7 +38,7 @@ export function parseToEmbed(children: Data2) {
     if (children.selftext.length > 0) {
         e.setDesc(children.selftext.length >= 2000 ? children.selftext.slice(0, 2000) + `\n[view more](${source})` : children.selftext)
     }
-    if (!children.url.match(/http(s)?:\/\/.*(\.jpe?g$|\.png$|\.gif$)/g) && children.thumbnail !== "self") {
+    if (!children.url.match(/http(s)?:\/\/.*(\.jpe?g$|\.png$|\.gif$)/g) && children.thumbnail.startsWith("http")) {
         e.setThumb(children.thumbnail)
     } else {
         e.setImage(children.url)
