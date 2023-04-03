@@ -10,6 +10,8 @@ async function run(msg: Message<any>) {
     const lvl = await client.database.settings.get<ISettingsDB>(process.env.SERVER_ID!)!
     if (!lvl?.modules.level.enable) return
 
+    if (lvl.modules.level.ignoreChannel && lvl.modules.level.ignoreChannel.includes(msg.channel.id)) return
+
     let level = await client.database.level.get<ILevelDB>(msg.author.id)
 
     if (!level) {
