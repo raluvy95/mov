@@ -3,6 +3,7 @@ import { client } from "../client/Client";
 import { MovDB } from "../client/Database";
 import { MovPlugin } from "../client/Plugin";
 import { ISettingsDB } from "../interfaces/database";
+import { debug } from "../utils/debug";
 import { summonWebhook } from "../utils/summonWebhook";
 
 const cache = new MovDB("cache")
@@ -26,6 +27,7 @@ export default new MovPlugin("rss", {
                         const latestContent = parsed.items[0]
 
                         if (!cached || latestContent.link != cached) {
+                            debug(latestContent)
                             const content = !rss.customMsg ? "📰 | {url}" : rss.customMsg
                             await summonWebhook(instance.channelId.toString(), {
                                 username: instance.name,
