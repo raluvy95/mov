@@ -27,7 +27,7 @@ export default new MovPlugin("rss", {
                         const latestContent = parsed.items[0]
 
                         if (!cached || latestContent.link != cached) {
-                            debug(latestContent, url)
+                            debug(latestContent.link, url)
                             const content = !rss.customMsg ? "📰 | {url}" : rss.customMsg
                             await summonWebhook(instance.channelId.toString(), {
                                 username: instance.name,
