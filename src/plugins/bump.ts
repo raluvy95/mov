@@ -47,7 +47,7 @@ export default new MovPlugin("bump", {
             client.createMessage(msg.channel.id, success)
             setTimeout(() => {
                 client.createMessage(msg.channel.id, { content: `Hey <@${target}>, reminder to \`/bump\` again!`, ...opt })
-            }, 10000)
+            }, 7200000)
         }
     }
 })
