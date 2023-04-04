@@ -32,16 +32,16 @@ export async function legacyRank(msg: Message<any>, rank: ILevelDB, user: User) 
         nextUpStr = `**${left} level${left == 1 ? '' : 's'}** left to reach <@&${nextUp.ID}>!`
     }
     const XPleft = reqXP - rank.xp
-    nextUpStr += `\n**${XPleft} XP** left to reach level ${rank.level + 1}!`
+    nextUpStr += `\n**${XPleft.toLocaleString()} XP** left to reach level ${rank.level + 1}!`
     const percent = Math.floor(rank.xp / reqXP * 100)
     const e = new MovEmbed()
         .setTitle("RANKS")
         .setThumb(user.avatarURL)
         .setDesc(nextUpStr)
-        .addField("XP", String(rank.xp), true)
-        .addField("Total XP", String(rank.totalxp), true)
+        .addField("XP", rank.xp.toLocaleString(), true)
+        .addField("Total XP", rank.totalxp.toLocaleString(), true)
         .addField("Level", String(rank.level), true)
-        .addField("Progress Bar", `[${rank.xp}/${reqXP}] ${progressBar(rank.xp, reqXP)} (${percent}%)`)
+        .addField("Progress Bar", `[${rank.xp.toLocaleString()}/${reqXP.toLocaleString()}] ${progressBar(rank.xp, reqXP)} (${percent}%)`)
         .setTimestamp(undefined)
     await client.createMessage(msg.channel.id, e.build())
     return

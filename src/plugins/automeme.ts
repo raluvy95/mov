@@ -31,6 +31,7 @@ export default new MovPlugin("AutoMeme", {
 
                     if (fetchAPI.length < 1) {
                         debug("Empty result")
+                        return
                     }
 
                     const postPicked = pick(fetchAPI)
@@ -41,6 +42,6 @@ export default new MovPlugin("AutoMeme", {
                     return;
                 }
             }
-        }, 1000 * 60 * 60 * 6)
+        }, 1000 * 60 * 60 * 4)
     }
 })
