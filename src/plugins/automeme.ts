@@ -36,7 +36,7 @@ export default new MovPlugin("AutoMeme", {
 
                     const postPicked = pick(fetchAPI)
                     const e = parseToEmbed(postPicked)
-                    await summonWebhook(instance.channelId, { ...e, username: instance.name, avatarURL: client.user.avatarURL })
+                    await summonWebhook(instance.channelId, { ...e.build(), username: instance.name, avatarURL: client.user.avatarURL })
                 } catch (e) {
                     console.error(e)
                     return;
