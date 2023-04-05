@@ -131,11 +131,11 @@ class Mov extends CommandClient {
 
     private async checkPrefixMod(msg: Message<any>) {
         let prefixes = this.commandOptions.prefix;
-        const userPref = await this.database.user.get<IUserDB>(msg.author.id)
-        const server = await this.database.settings.get<ISettingsDB>(msg.guildID!)
+        const userPref = (await this.database.user.get<IUserDB>(msg.author.id))?.prefix.toLowerCase()
+        const server = (await this.database.settings.get<ISettingsDB>(msg.guildID!))?.prefix.toLowerCase()
 
-        if (userPref?.prefix || server?.prefix) {
-            prefixes = userPref?.prefix || server?.prefix
+        if (userPref || server) {
+            prefixes = userPref || server
         } else if (msg.mentions.includes(this.user)) {
             prefixes = this.user.id
             msg.prefix = `<@${this.user.id}>`
@@ -143,12 +143,12 @@ class Mov extends CommandClient {
             prefixes = this.guildPrefixes[msg.channel.guild.id];
         }
         if (typeof prefixes === "string") {
-            if (!msg.content.replace(/<@!/g, "<@").startsWith(prefixes) && typeof server?.prefix === "string") {
-                prefixes = server?.prefix
+            if (!msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefixes) && typeof server === "string") {
+                prefixes = server
             }
-            return msg.content.replace(/<@!/g, "<@").startsWith(prefixes) && prefixes;
+            return msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefixes) && prefixes;
         } else if (Array.isArray(prefixes)) {
-            return prefixes.find((prefix) => msg.content.replace(/<@!/g, "<@").startsWith(prefix));
+            return prefixes.find((prefix) => msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefix));
         }
         throw new Error(`Unsupported prefix format | ${prefixes}`);
     }
