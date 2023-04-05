@@ -58,6 +58,6 @@ export default new MovPlugin("clock", {
                     name: `${emoji} | ${dateToString(new Date(), { clockOnly: true, includesTimezone: true, timezone: clock.timezone })}`
                 })
             }
-        }, 1000 * 60 * 15)
+        }, 1000 * 60 * 60)
     }
 })
