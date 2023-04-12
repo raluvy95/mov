@@ -2,6 +2,7 @@ import { Message } from "eris"
 import { client } from "../client/Client"
 import { ILevelDB, ISettingsDB, IUserDB } from "../interfaces/database"
 import { getMemberByID } from "./get"
+import { probability } from "./math"
 
 export function formulaXP(level: number) {
     return 5 * (Math.pow(level, 2)) + (50 * level) + 100
@@ -34,10 +35,14 @@ export async function sendLvlUP(user: string, msg: Message, level: ILevelDB) {
         }
 
         const targetChannelID = levelDB.modules.level.lvlup?.channelId.toString()
-        const targetMsg = levelDB.modules.level.lvlup?.message || `Congrats {mention}! You reached level **{level}**!`
-        client.createMessage(targetChannelID == undefined || targetChannelID == "0" ? msg.channel.id : targetChannelID!,
-            targetMsg.replace("{mention}", target)
-                .replace("{level}", level.level.toString())).catch(e => console.error("Failed to send lvl up message", e))
+        let targetMsg = (levelDB.modules.level.lvlup?.message || `Congrats {mention}! You reached level **{level}**!`)
+            .replace("{mention}", target)
+            .replace("{level}", level.level.toString())
+        if (!userPref?.noMentionOnLevelUP && probability(30)) {
+            targetMsg += '\n\nTired of getting pinged? Use `sudo uconf noMentionOnLevelUP true` and I won\'t ping you on level up!'
+        }
+        client.createMessage(targetChannelID == undefined || targetChannelID == "0" ? msg.channel.id : targetChannelID!, targetMsg)
+            .catch(e => console.error("Failed to send lvl up message", e))
     } else {
         throw new Error("Failed to submit level up greeting!")
     }
