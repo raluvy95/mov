@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const { readdirSync } = require("fs");
 
 if (!readdirSync(".").includes("database.sqlite")) {
