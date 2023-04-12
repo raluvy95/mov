@@ -17,7 +17,7 @@ async function generator(msg: Message, args: string[]) {
 
     const e = new MovEmbed()
         .setTimestamp(undefined)
-        .setDesc(`${author.username} is **${Math.floor(Math.random() * 100)}%** gay! 🏳️‍🌈`)
+        .setDesc(`${author.username} is **${Math.floor(Math.random() * 101)}%** gay! 🏳️‍🌈`)
         .build()
     client.createMessage(msg.channel.id, e)
 }
