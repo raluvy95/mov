@@ -24,3 +24,11 @@ to Mov.<br> We only support database migration for leveling. After running the
 bot for first time, kill it and run `npm run migrate` **with your
 database.sqlite** inside the root project. It's recommend to keep
 database.sqlite at this moment.
+
+# Contributing
+
+Feel free to contribute whatever you want, as long as our build passed. (using
+tsc --noEmit for checking and Rome for styling)
+<br>
+<br>
+<br> ![](./assets/movbg.png)
