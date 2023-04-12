@@ -56,7 +56,8 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
             excludeRole: [],
             maxXP: 25,
             minXP: 15,
-            multiplyXP: 1
+            multiplyXP: 1,
+            noReminderToDisablePing: false
         },
         autopublish: {
             enable: false

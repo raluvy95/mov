@@ -38,7 +38,7 @@ export async function sendLvlUP(user: string, msg: Message, level: ILevelDB) {
         let targetMsg = (levelDB.modules.level.lvlup?.message || `Congrats {mention}! You reached level **{level}**!`)
             .replace("{mention}", target)
             .replace("{level}", level.level.toString())
-        if (!userPref?.noMentionOnLevelUP && probability(30)) {
+        if (!userPref?.noMentionOnLevelUP && probability(30) && !levelDB.modules.level.noReminderToDisablePing) {
             targetMsg += '\n\nTired of getting pinged? Use `sudo uconf noMentionOnLevelUP true` and I won\'t ping you on level up!'
         }
         client.createMessage(targetChannelID == undefined || targetChannelID == "0" ? msg.channel.id : targetChannelID!, targetMsg)

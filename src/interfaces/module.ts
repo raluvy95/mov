@@ -33,7 +33,8 @@ export interface Modules {
         excludeRole: string[]
         multiplyXP: number,
         maxXP: number,
-        minXP: number
+        minXP: number,
+        noReminderToDisablePing: boolean
     }>,
     rss: Partial<{
         enable: boolean
