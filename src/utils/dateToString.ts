@@ -7,6 +7,6 @@ function zero(numb: number): string {
 }
 
 export function dateToString(date: Date, opts?: { clockOnly?: boolean, includesTimezone?: boolean, timezone?: string }): string {
-    date = new Date(date.toLocaleString('en-UK', { timeZone: opts?.timezone }))
+    date = new Date(date.toLocaleString(undefined, { timeZone: opts?.timezone }))
     return `${opts?.clockOnly ? '' : date.toDateString() + ' '}${date.getHours()}:${zero(date.getMinutes())}${!opts?.clockOnly ? ":" + zero(date.getSeconds()) : ''}${opts?.includesTimezone ? ' (' + date.toLocaleTimeString('en-us', { timeZoneName: 'short', timeZone: opts.timezone }).split(' ')[2] + ')' : ''}`
 }
