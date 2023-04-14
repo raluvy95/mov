@@ -15,6 +15,7 @@
     "devDependencies": {
         "@types/better-sqlite3": "^7.6.3",
         "@types/cross-spawn": "^6.0.2",
+        "@types/luxon": "^3.3.0",
         "@types/node": "^18.14.6",
         "@types/node-fetch": "^2.6.2",
         "nodemon": "^2.0.21",
@@ -30,6 +31,7 @@
         "dotenv": "^16.0.3",
         "eris": "^0.17.2",
         "eris-collect": "^1.1.1",
+        "luxon": "^3.3.0",
         "node-fetch": "^2.6.9",
         "quick.db": "^9.0.8",
         "rss-to-json": "^2.1.1"
