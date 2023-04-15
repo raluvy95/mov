@@ -38,7 +38,7 @@ async function generator(msg: Message, args: string[]) {
         .setTitle("Leaderboard")
         .setImage("attachment://leaderboard.png")
         .setThumb(client.guilds.get(msg.guildID!)?.iconURL || client.user.staticAvatarURL)
-        .setDesc(`Top **${all.length}** most active people of all time!\nType \`${msg.prefix}${msg.command?.label} <page>\` to the next page`)
+        .setDesc(`Top **${all.length}** most active people of all time!\nType \`${msg.prefix} ${msg.command?.label} <page>\` to the next page`)
         .setFooter(`Page ${page}/${maxPage}`, msg.author.avatarURL)
 
     client.createMessage(msg.channel.id, e.build(), {
