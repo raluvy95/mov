@@ -60,5 +60,10 @@ export interface Modules {
         enable: boolean,
         timezone: string,
         channelId: string
+    }>,
+    autoMessageForum: Partial<{
+        enable: boolean,
+        message: string,
+        mentionable: boolean
     }>
 }

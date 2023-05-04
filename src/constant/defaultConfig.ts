@@ -64,6 +64,11 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
         },
         messageReference: {
             enable: true
+        },
+        autoMessageForum: {
+            enable: false,
+            message: "Thank you for creating new post!",
+            mentionable: false
         }
     }
 }

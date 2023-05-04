@@ -36,7 +36,9 @@ add instances {"name": "memes", "channelId": "12345678901234", "subreddits": ["m
 set instances [{"name": "memes", "channelId": "12345678901234", "subreddits": ["memes", "dankmemes"]}]`,
     autopublish: '',
     messageReference: '',
-    clock: ''
+    clock: '',
+    autoMessageForum: `
+set message "thank you for creating new post xd"`
 }
 
 export const VARIABLES: base = {
@@ -63,7 +65,8 @@ export const VARIABLES: base = {
     autopost: ``,
     autopublish: '',
     messageReference: '',
-    clock: ''
+    clock: '',
+    autoMessageForum: ''
 }
 
 function generator(msg: Message, _args: string[]) {
