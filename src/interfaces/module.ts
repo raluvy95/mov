@@ -64,6 +64,7 @@ export interface Modules {
     autoMessageForum: Partial<{
         enable: boolean,
         message: string,
-        mentionable: boolean
+        mentionable: boolean,
+        ignoreChannel?: string[]
     }>
 }

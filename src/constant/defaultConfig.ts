@@ -68,7 +68,8 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
         autoMessageForum: {
             enable: false,
             message: "Thank you for creating new post!",
-            mentionable: false
+            mentionable: false,
+            ignoreChannel: []
         }
     }
 }

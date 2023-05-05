@@ -10,11 +10,13 @@ export default new MovPlugin("automessageforum", {
 
         const conf = await client.database.settings.get<ISettingsDB>(c.guild.id)
         if (!conf?.modules.autoMessageForum?.enable) return;
+        const autoForum = conf?.modules.autoMessageForum!
 
+        const parent = client.getChannel(c.parentID)
         // actual forum and not just thread
-        if ((client.getChannel(c.parentID).type as 15) == 15) {
-            const ment = conf.modules.autoMessageForum.mentionable
-            client.createMessage(c.id, { content: conf.modules.autoMessageForum.message!, allowedMentions: { roles: ment, everyone: false } })
+        if ((parent.type as 15) == 15 && !autoForum.ignoreChannel?.includes(parent.id)) {
+            const ment = autoForum.mentionable
+            client.createMessage(c.id, { content: autoForum.message!, allowedMentions: { roles: ment, everyone: false } })
         }
     }
 })
