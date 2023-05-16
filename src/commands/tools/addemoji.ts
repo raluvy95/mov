@@ -65,7 +65,7 @@ class AddEmoji extends MovCommand {
         super("addemoji", generator, {
             requirements: {
                 permissions: {
-                    createEmoji: true
+                    manageEmojisAndStickers: true
                 }
             }
         })
