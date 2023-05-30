@@ -25,6 +25,11 @@ bot for first time, kill it and run `npm run migrate` **with your
 database.sqlite** inside the root project. It's recommend to keep
 database.sqlite at this moment.
 
+## Catppify
+
+This is a tool to generate image using Catppuccin palette. You need to intergate `palettes` and `catppify` files from [my repo](https://github.com/raluvy95/catppify) to `./bin` directory 
+Set `CATPPIFY=0` in your .env file if you don't want.
+
 # Contributing
 
 Feel free to contribute whatever you want, as long as our build passed. (using

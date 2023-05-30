@@ -3,6 +3,7 @@ import { CommandInteraction } from 'eris';
 dotenv.config()
 import { client } from './client/Client';
 import { debug } from './utils/debug';
+import { unlink } from 'fs';
 
 process.on("unhandledRejection", (rej) => {
     console.error(rej);
@@ -28,5 +29,9 @@ client.on("interactionCreate", i => {
         }
     }
 })
+
+
+unlink("generated.png", () => { })
+unlink("input.png", () => { })
 
 client.connect()
