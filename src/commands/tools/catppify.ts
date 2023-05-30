@@ -5,8 +5,9 @@ import https from "https";
 import { createWriteStream, readFile, unlinkSync } from "fs";
 import { spawn } from "child_process";
 
-function secondsToDhms(seconds: number): string {
-    seconds = Number(seconds)
+function mmToDhms(mm: number | string): string {
+    mm = Number(mm)
+    const seconds = mm / 1000
     const d = Math.floor(seconds / (3600 * 24));
     const h = Math.floor(seconds % (3600 * 24) / 3600);
     const m = Math.floor(seconds % 3600 / 60);
@@ -16,7 +17,8 @@ function secondsToDhms(seconds: number): string {
     const hDisplay = h > 0 ? h + "h" : "";
     const mDisplay = m > 0 ? m + "m " : "";
     const sDisplay = s > 0 ? s + "s" : "";
-    return dDisplay + hDisplay + mDisplay + sDisplay;
+    const mmDisplay = mm > 0 ? mm + "mm" : '';
+    return dDisplay + hDisplay + mDisplay + sDisplay + mmDisplay;
 }
 
 function download(url: string, dest: string, cb?: ((err?: NodeJS.ErrnoException | null | undefined) => void) | undefined) {
@@ -101,7 +103,7 @@ function generator(msg: Message, args: string[]) {
 
                     } else {
                         const took = Date.now() - init_time
-                        client.createMessage(msg.channel.id, `Here you go (Took ${secondsToDhms(took / 1000)})`, {
+                        client.createMessage(msg.channel.id, `Here you go (Took ${mmToDhms(took / 1000)})`, {
                             file: data,
                             name: "generated.png"
                         })
