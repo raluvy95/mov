@@ -22,7 +22,6 @@ export async function catppify(url: string, palette: Palette = "mocha", noise: N
         throw e
     }
 
-    // TODO: optimize this
     for (let x = 0; x < _img.width; x++) {
         for (let y = 0; y < _img.height; y++) {
             let chunk = ctx.getImageData(x, y, 1, 1).data
@@ -43,13 +42,11 @@ export async function catppify(url: string, palette: Palette = "mocha", noise: N
             const c_pixel = ctxC.getImageData(c_x, c_y, 1, 1).data
 
             const out_pixel = [...c_pixel, a]
-
-            ctx.fillStyle = `rgba(${out_pixel.join(", ")})`
+            const fillStyle = `rgba(${out_pixel[0]}, ${out_pixel[1]}, ${out_pixel[2]}, ${(a / 255).toFixed(5)})`
+            ctx.fillStyle = fillStyle
             ctx.fillRect(x, y, 1, 1)
         }
     }
 
     return out_img.toBuffer()
-
-
 }
