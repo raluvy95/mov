@@ -22,6 +22,7 @@ export async function catppify(url: string, palette: Palette = "mocha", noise: N
         throw e
     }
 
+    // TODO: optimize this
     for (let x = 0; x < _img.width; x++) {
         for (let y = 0; y < _img.height; y++) {
             let chunk = ctx.getImageData(x, y, 1, 1).data
