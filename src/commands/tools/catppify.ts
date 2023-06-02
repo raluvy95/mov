@@ -53,7 +53,7 @@ async function generator(msg: Message, args: string[]) {
             client.createMessage(msg.channel.id, `That's not a number lol`)
             return
         }
-        const avaliable_noise = ['0', '1', '2', '3', '4']
+        const avaliable_noise = ['0', '1', '2', '3', '4', '5']
         if (!avaliable_noise.includes(noise)) {
             client.createMessage(msg.channel.id, `Invalid palette. Use one of the following avaliable noises: ${avaliable_noise.join(", ")}`)
             return

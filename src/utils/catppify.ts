@@ -3,7 +3,7 @@ import { readFile } from "fs/promises"
 
 export type Palette = "frappe" | "latte" | "machiatto" | "mocha" | "oled"
 
-export type Noise = "0" | "1" | "2" | "3" | "4"
+export type Noise = "0" | "1" | "2" | "3" | "4" | "5"
 
 async function imageProcessing(ctx: CanvasRenderingContext2D, ctxC: CanvasRenderingContext2D, img: Image) {
     for (let x = 0; x < img.width; x++) {
