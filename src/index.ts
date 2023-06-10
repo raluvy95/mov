@@ -32,7 +32,8 @@ client.on("interactionCreate", (i) => {
     }
 });
 
-unlinkSync("generated.png");
-unlinkSync("input.png");
-
+try {
+    unlinkSync("generated.png");
+    unlinkSync("input.png");
+} catch { }
 client.connect();

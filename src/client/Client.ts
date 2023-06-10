@@ -1,10 +1,10 @@
-import { CommandClient, GeneratorFunctionReturn, Message, TextableChannel } from "eris";
-import { CmdStatDB, LevelDB, MovDB, SettingsDB, UserDB } from "./Database";
-import { readdirSync } from "fs";
-import { MovCommand } from "./Command";
-import { MovPlugin } from "./Plugin";
-import { Collection } from "@discordjs/collection";
-import { ISettingsDB, IUserDB } from "../interfaces/database";
+import { CommandClient, GeneratorFunctionReturn, Message, TextableChannel } from 'eris';
+import { CmdStatDB, LevelDB, MovDB, SettingsDB, UserDB } from './Database';
+import { readdirSync } from 'fs';
+import { MovCommand } from './Command';
+import { MovPlugin } from './Plugin';
+import { Collection } from '@discordjs/collection';
+import { ISettingsDB, IUserDB } from '../interfaces/database';
 
 export interface ClientDatabase {
 	level: MovDB
@@ -172,8 +172,8 @@ class Mov extends CommandClient {
 		if (msg.mentions.includes(this.user) && msg.type === 0) {
 			const userPref = await this.database.user.get<IUserDB>(msg.author.id);
 			const server = await this.database.settings.get<ISettingsDB>(msg.guildID!);
-			const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : "";
-			const responseS = server?.prefix ? `The bot's prefix is \`${server.prefix}\`` : "";
+			const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : '';
+			const responseS = server?.prefix ? `The bot's prefix is \`${server.prefix}\`` : '';
 			const com = `${responseU} ${responseS}`;
 			if (com.length === 1) {
 				client.createMessage(msg.channel.id, "Hello! You can response me with mention! Use `<@" + this.user.username + "> help` to get started!");
@@ -183,7 +183,7 @@ class Mov extends CommandClient {
 		}
 
 		const userPref = await this.database.user.get<IUserDB>(msg.author.id);
-		if ((msg.prefix as any) === await this.checkPrefixMod(msg)) {
+		if ((msg.prefix as any) = await this.checkPrefixMod(msg)) {
 			this.commandHandler(msg, userPref || undefined);
 		}
 	}
@@ -210,14 +210,16 @@ class Mov extends CommandClient {
 		const plugins = readdirSync("./build/plugins");
 		this.on("messageCreate", this.onMessageCreate);
 		this.on("messageUpdate", (msg, oldMsg) => {
-			if (oldMsg?.content === msg.content) return;
+			// rome-ignore lint/suspicious/noDoubleEquals: <explanation>
+			if (oldMsg?.content == msg.content) return;
 			this.onMessageCreate(msg);
 		});
 		for (const plugin of plugins) {
 			try {
 				const plug: { default: MovPlugin<any> } = await import(`../plugins/${plugin}`);
 
-				if (typeof plug.default.enable === "boolean" && plug.default.enable) {
+				if (!plug.default.enable) {
+				} else {
 					client.on(plug.default.events.event, plug.default.events.run);
 					console.log(`Plugin: ${plug.default.name} loaded!`);
 				}
@@ -228,7 +230,7 @@ class Mov extends CommandClient {
 
 		this.on("ready", () => {
 			console.log(`Logged as ${this.user.username}#${this.user.discriminator}!`);
-		});
+		})
 	}
 }
 
