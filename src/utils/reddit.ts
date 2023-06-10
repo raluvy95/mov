@@ -65,8 +65,8 @@ export function parseToEmbed(children: Data2) {
 		children.thumbnail.startsWith("http")
 	) {
 		e.setThumb(children.thumbnail);
-	} else {
-		e.setImage(children.url);
+	} else if (children.url.startsWith("http")) {
+		e.setImage(children.url)
 	}
 	if (children.media_metadata) {
 		e.setImage(Object.values(children.media_metadata)[0].p[0].u);
@@ -75,6 +75,12 @@ export function parseToEmbed(children: Data2) {
 	if (children.is_video) {
 		e.setDesc(`[Click to see video](${children.url})`);
 	}
+
+	if ((children as Data2 & { crosspost_parent_list?: Array<any> }).crosspost_parent_list?.length) {
+		e.setDesc(`[Crosspost](${(children as Data2 & { crosspost_parent_list: Array<any> }).crosspost_parent_list[0].url})`)
+	}
+
+	console.log(children)
 
 	return e;
 }
