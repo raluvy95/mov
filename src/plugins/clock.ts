@@ -7,57 +7,63 @@ export default new MovPlugin("clock", {
     event: "ready",
     async run() {
         setInterval(async () => {
-            const settings = await client.database.settings.get<ISettingsDB>(process.env.SERVER_ID!)
+            const settings = await client.database.settings.get<ISettingsDB>(
+                process.env.SERVER_ID!,
+            );
             if (!settings || !settings.modules.clock.enable) return;
-            const clock = settings.modules.clock
-            if (!clock.channelId) return
-            const channel = client.getChannel(clock.channelId)
-            const date = new Date()
-            let emoji: string = ''
-            switch (date.toLocaleTimeString('en-us').split(':')[0]) {
+            const clock = settings.modules.clock;
+            if (!clock.channelId) return;
+            const channel = client.getChannel(clock.channelId);
+            const date = new Date();
+            let emoji = "";
+            switch (date.toLocaleTimeString("en-us").split(":")[0]) {
                 case "1":
-                    emoji = '🕐'
-                    break
+                    emoji = "🕐";
+                    break;
                 case "2":
-                    emoji = '🕑'
-                    break
+                    emoji = "🕑";
+                    break;
                 case "3":
-                    emoji = '🕒'
-                    break
+                    emoji = "🕒";
+                    break;
                 case "4":
-                    emoji = '🕓'
-                    break
+                    emoji = "🕓";
+                    break;
                 case "5":
-                    emoji = '🕔'
-                    break
+                    emoji = "🕔";
+                    break;
                 case "6":
-                    emoji = '🕕'
-                    break
+                    emoji = "🕕";
+                    break;
                 case "7":
-                    emoji = '🕖'
-                    break
+                    emoji = "🕖";
+                    break;
                 case "8":
-                    emoji = '🕗'
-                    break
+                    emoji = "🕗";
+                    break;
                 case "9":
-                    emoji = '🕘'
-                    break
+                    emoji = "🕘";
+                    break;
                 case "10":
-                    emoji = '🕙'
-                    break
+                    emoji = "🕙";
+                    break;
                 case "11":
-                    emoji = '🕚'
-                    break
+                    emoji = "🕚";
+                    break;
                 case "0":
                 case "12":
-                    emoji = '🕛'
-                    break
+                    emoji = "🕛";
+                    break;
             }
-            if ('edit' in channel) {
+            if ("edit" in channel) {
                 channel.edit({
-                    name: `${emoji} | ${dateToString(new Date(), { clockOnly: true, includesTimezone: true, timezone: clock.timezone })}`
-                })
+                    name: `${emoji} | ${dateToString(new Date(), {
+                        clockOnly: true,
+                        includesTimezone: true,
+                        timezone: clock.timezone,
+                    })}`,
+                });
             }
-        }, 1000 * 60 * 60)
-    }
-})
+        }, 1000 * 60 * 60);
+    },
+});

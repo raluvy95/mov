@@ -1,23 +1,22 @@
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import fetch from 'node-fetch'
+import fetch from "node-fetch";
 
 function generator(msg: Message, _args: string[]) {
-    const err = "There's something went wrong with dog. No dog for you :("
+    const err = "There's something went wrong with dog. No dog for you :(";
     try {
-        fetch("https://dog.ceo/api/breeds/image/random").then(async r => {
+        fetch("https://dog.ceo/api/breeds/image/random").then(async (r) => {
             try {
-                const j = await r.json()
-                client.createMessage(msg.channel.id, j.message)
+                const j = await r.json();
+                client.createMessage(msg.channel.id, j.message);
             } catch {
-                client.createMessage(msg.channel.id, err)
+                client.createMessage(msg.channel.id, err);
             }
-        })
-
+        });
     } catch {
-        client.createMessage(msg.channel.id, err)
-        return
+        client.createMessage(msg.channel.id, err);
+        return;
     }
 }
 
@@ -26,8 +25,8 @@ class Dog extends MovCommand {
         super("dog", generator, {
             aliases: ["puppy"],
             description: "doggieee",
-        })
+        });
     }
 }
 
-export default new Dog()
+export default new Dog();

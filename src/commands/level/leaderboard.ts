@@ -8,50 +8,55 @@ import { legacyLeaderboard } from "../../utils/legacy";
 
 async function generator(msg: Message, args: string[]) {
     if (!args[0]) {
-        args[0] = "1"
+        args[0] = "1";
     }
     if (isNaN(Number(args[0]))) {
-        client.createMessage(msg.channel.id, "That's not an number")
-        return
+        client.createMessage(msg.channel.id, "That's not an number");
+        return;
     }
 
-    let page = Math.abs(Number(args[0]))
+    let page = Math.abs(Number(args[0]));
 
     const all = (await client.database.level.all()).sort((a, b) => {
-        return b.value.totalxp - a.value.totalxp
-    })
+        return b.value.totalxp - a.value.totalxp;
+    });
 
-    const filtered = all.slice(((page - 1) * 15), 15 * page)
+    const filtered = all.slice((page - 1) * 15, 15 * page);
 
-    const maxPage = Number((all.length / 15).toFixed())
+    const maxPage = Number((all.length / 15).toFixed());
 
     if (page > maxPage) {
-        page = maxPage
+        page = maxPage;
     }
-    const legacy = await client.database.user.get<IUserDB>(msg.author.id)
+    const legacy = await client.database.user.get<IUserDB>(msg.author.id);
     if (legacy?.useLegacyRank) {
-        await legacyLeaderboard(filtered, msg, page, maxPage)
-        return
+        await legacyLeaderboard(filtered, msg, page, maxPage);
+        return;
     }
-    const img = await leaderboardCanvas(filtered, msg, page)
+    const img = await leaderboardCanvas(filtered, msg, page);
     const e = new MovEmbed()
         .setTitle("Leaderboard")
         .setImage("attachment://leaderboard.png")
-        .setThumb(client.guilds.get(msg.guildID!)?.iconURL || client.user.staticAvatarURL)
-        .setDesc(`Top **${all.length}** most active people of all time!\nType \`${msg.prefix} ${msg.command?.label} <page>\` to the next page`)
-        .setFooter(`Page ${page}/${maxPage}`, msg.author.avatarURL)
+        .setThumb(
+            client.guilds.get(msg.guildID!)?.iconURL ||
+                client.user.staticAvatarURL,
+        )
+        .setDesc(
+            `Top **${all.length}** most active people of all time!\nType \`${msg.prefix} ${msg.command?.label} <page>\` to the next page`,
+        )
+        .setFooter(`Page ${page}/${maxPage}`, msg.author.avatarURL);
 
     client.createMessage(msg.channel.id, e.build(), {
         file: img,
-        name: "leaderboard.png"
-    })
+        name: "leaderboard.png",
+    });
 }
 
 class Leaderboard extends MovCommand {
     constructor() {
         super("leaderboard", generator, {
-            aliases: ["lb", "levels", "lboard"]
-        })
+            aliases: ["lb", "levels", "lboard"],
+        });
     }
 }
 

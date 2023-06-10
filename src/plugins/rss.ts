@@ -5,43 +5,48 @@ import { MovPlugin } from "../client/Plugin";
 import { ISettingsDB } from "../interfaces/database";
 import { summonWebhook } from "../utils/summonWebhook";
 
-const cache = new MovDB("cache")
+const cache = new MovDB("cache");
 
 export default new MovPlugin("rss", {
     event: "ready",
     async run() {
         setInterval(async () => {
-            const rssdb = await client.database.settings.get<ISettingsDB>(process.env.SERVER_ID!)
+            const rssdb = await client.database.settings.get<ISettingsDB>(
+                process.env.SERVER_ID!,
+            );
             if (!rssdb?.modules.rss.enable) return;
 
-            const rss = rssdb.modules.rss
+            const rss = rssdb.modules.rss;
             if (!rss.instances) return;
             if (rss.instances.length < 1) return;
 
             for (const instance of rss.instances) {
                 for (const url of instance.url) {
                     try {
-                        const cached = await cache.get<string>(url)
-                        const parsed = await parse(url)
-                        const latestContent = parsed.items[0]
+                        const cached = await cache.get<string>(url);
+                        const parsed = await parse(url);
+                        const latestContent = parsed.items[0];
                         if (Array.isArray(latestContent.link)) {
                             // Atom support
-                            latestContent.link = latestContent.link[0].href
+                            latestContent.link = latestContent.link[0].href;
                         }
-                        if (!cached || latestContent.link != cached) {
-                            const content = !rss.customMsg ? "📰 | {url}" : rss.customMsg
+                        if (!cached || latestContent.link !== cached) {
+                            const content = !rss.customMsg
+                                ? "📰 | {url}"
+                                : rss.customMsg;
                             await summonWebhook(instance.channelId.toString(), {
                                 username: instance.name,
-                                content: content.replace("{url}", latestContent.link)
-                                    .replace("{title}", latestContent.title)
-                            })
-                            cache.set(url, latestContent.link)
+                                content: content
+                                    .replace("{url}", latestContent.link)
+                                    .replace("{title}", latestContent.title),
+                            });
+                            cache.set(url, latestContent.link);
                         }
                     } catch (e) {
-                        console.error(e)
+                        console.error(e);
                     }
                 }
             }
-        }, 60 * 1000 * 25)
-    }
-})
+        }, 60 * 1000 * 25);
+    },
+});

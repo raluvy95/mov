@@ -7,7 +7,7 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
         clock: {
             enable: false,
             channelId: "1234567897654321",
-            timezone: "Europe/London"
+            timezone: "Europe/London",
         },
         autopost: {
             enable: false,
@@ -15,26 +15,26 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
                 {
                     name: "lol",
                     channelId: "12345678234567",
-                    subreddits: ["memes", "dankmemes"]
-                }
-            ]
+                    subreddits: ["memes", "dankmemes"],
+                },
+            ],
         },
         welcome: {
             enable: false,
             channelId: "channel ID",
             message: "Welcome {mention} to the server!",
-            ignoreBot: false
+            ignoreBot: false,
         },
         goodbye: {
             enable: false,
             channelId: "channel ID",
             message: "Goodbye {user}!",
-            ignoreBot: false
+            ignoreBot: false,
         },
         bump: {
             enable: true,
             roleID: "0",
-            bumpRewards: true
+            bumpRewards: true,
         },
         rss: {
             enable: false,
@@ -42,9 +42,9 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
                 {
                     name: "new thing",
                     url: ["URL"],
-                    channelId: "12324567890123456"
-                }
-            ]
+                    channelId: "12324567890123456",
+                },
+            ],
         },
         level: {
             enable: true,
@@ -57,22 +57,22 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
             maxXP: 25,
             minXP: 15,
             multiplyXP: 1,
-            noReminderToDisablePing: false
+            noReminderToDisablePing: false,
         },
         autopublish: {
-            enable: false
+            enable: false,
         },
         messageReference: {
-            enable: true
+            enable: true,
         },
         autoMessageForum: {
             enable: false,
             message: "Thank you for creating new post!",
             mentionable: false,
-            ignoreChannel: []
-        }
-    }
-}
+            ignoreChannel: [],
+        },
+    },
+};
 
 export const DEFAULT_USER_SETTINGS: IUserDB = {
     prefix: "$",
@@ -80,11 +80,11 @@ export const DEFAULT_USER_SETTINGS: IUserDB = {
     colorAccent: labels.mauve.mocha.hex,
     noMentionOnLevelUP: false,
     customBackgroundURL: "color",
-    useLegacyRank: false
-}
+    useLegacyRank: false,
+};
 
 export const EMPTY_LEVEL = {
     xp: 0,
     level: 0,
-    totalxp: 0
-}
+    totalxp: 0,
+};

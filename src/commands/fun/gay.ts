@@ -5,28 +5,31 @@ import { MovEmbed } from "../../client/Embed";
 import { getUser } from "../../utils/get";
 
 async function generator(msg: Message, args: string[]) {
+    let author: User | undefined = msg.author;
 
-    let author: User | undefined = msg.author
-
-    if (args.length != 0) {
-        author = await getUser(msg, args.join(" "))
+    if (args.length !== 0) {
+        author = await getUser(msg, args.join(" "));
         if (!author) {
-            author = msg.author
+            author = msg.author;
         }
     }
 
     const e = new MovEmbed()
         .setTimestamp(undefined)
-        .setDesc(`${author.username} is **${Math.floor(Math.random() * 101)}%** gay! 🏳️‍🌈`)
-        .build()
-    client.createMessage(msg.channel.id, e)
+        .setDesc(
+            `${author.username} is **${Math.floor(
+                Math.random() * 101,
+            )}%** gay! 🏳️‍🌈`,
+        )
+        .build();
+    client.createMessage(msg.channel.id, e);
 }
 
 class Gay extends MovCommand {
     constructor() {
         super("gay", generator, {
-            aliases: ["homo", "homosexual"]
-        })
+            aliases: ["homo", "homosexual"],
+        });
     }
 }
 

@@ -1,12 +1,12 @@
-import { Modules } from "../../interfaces/module"
+import { Modules } from "../../interfaces/module";
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
 
 type base = {
-    [s in keyof Modules]: string
-}
+    [s in keyof Modules]: string;
+};
 
 export const EXAMPLE: base = {
     welcome: `
@@ -34,12 +34,12 @@ set roleID 1234567890123`,
     autopost: `
 add instances {"name": "memes", "channelId": "12345678901234", "subreddits": ["memes", "dankmemes"]}
 set instances [{"name": "memes", "channelId": "12345678901234", "subreddits": ["memes", "dankmemes"]}]`,
-    autopublish: '',
-    messageReference: '',
-    clock: '',
+    autopublish: "",
+    messageReference: "",
+    clock: "",
     autoMessageForum: `
-set message "thank you for creating new post xd"`
-}
+set message "thank you for creating new post xd"`,
+};
 
 export const VARIABLES: base = {
     welcome: `
@@ -61,30 +61,31 @@ export const VARIABLES: base = {
     \`{title}\` - The RSS' title
     \`{url}\` - Link to RSS article
     `,
-    bump: ``,
-    autopost: ``,
-    autopublish: '',
-    messageReference: '',
-    clock: '',
-    autoMessageForum: ''
-}
+    bump: "",
+    autopost: "",
+    autopublish: "",
+    messageReference: "",
+    clock: "",
+    autoMessageForum: "",
+};
 
 function generator(msg: Message, _args: string[]) {
-    const e = new MovEmbed()
-        .setTitle("Examples of config")
-    let r: string = ''
+    const e = new MovEmbed().setTitle("Examples of config");
+    let r = "";
     for (const [k, v] of Object.entries(EXAMPLE)) {
-        if (v.length < 1) continue
-        r += `**${k}**\n\`${v}\`\n`
+        if (v.length < 1) continue;
+        r += `**${k}**\n\`${v}\`\n`;
     }
-    r += "__**Variables**__\n"
+    r += "__**Variables**__\n";
     for (const [k, v] of Object.entries(VARIABLES)) {
-        if (v.length < 1) continue
-        r += `**${k}**\n${v}\n`
+        if (v.length < 1) continue;
+        r += `**${k}**\n${v}\n`;
     }
-    e.setDesc(r)
-        .addField("How to change?", `Use ${msg.prefix}conf <module> set <key> <value>\nTo change prefix for this bot, please use \`${msg.prefix}prefix <value>\`\n\nYou can also use \`add\` or \`remove\` subcommand to add new value if key's type is [an array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) (doesn't support multiple key sadly)`)
-    client.createMessage(msg.channel.id, e.build())
+    e.setDesc(r).addField(
+        "How to change?",
+        `Use ${msg.prefix}conf <module> set <key> <value>\nTo change prefix for this bot, please use \`${msg.prefix}prefix <value>\`\n\nYou can also use \`add\` or \`remove\` subcommand to add new value if key's type is [an array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array) (doesn't support multiple key sadly)`,
+    );
+    client.createMessage(msg.channel.id, e.build());
 }
 
 class Example extends MovCommand {
@@ -95,10 +96,10 @@ class Example extends MovCommand {
             aliases: ["examples"],
             requirements: {
                 permissions: {
-                    administrator: true
-                }
-            }
-        })
+                    administrator: true,
+                },
+            },
+        });
     }
 }
 

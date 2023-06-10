@@ -1,10 +1,5 @@
 {
-    "ignore": [
-        "build/",
-        "node_modules"
-    ],
-    "watch": [
-        "src/"
-    ],
+    "ignore": ["build/", "node_modules"],
+    "watch": ["src/"],
     "ext": "ts, json, js"
 }

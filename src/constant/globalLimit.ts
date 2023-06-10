@@ -1,4 +1,4 @@
-const CONTENT_LIMIT = 2000
+const CONTENT_LIMIT = 2000;
 const EMBED = {
     TITLE: 2000,
     FIELDS: 25,
@@ -8,7 +8,7 @@ const EMBED = {
     ALL_CONTENT: 6000,
     LIMIT: 10,
     DESCRIPTION: 4096,
-    FOOTER: 2048
-}
+    FOOTER: 2048,
+};
 
-export { EMBED, CONTENT_LIMIT }
+export { EMBED, CONTENT_LIMIT };

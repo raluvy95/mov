@@ -43,3 +43,5 @@ jobs:
         run: npm install
       - name: TypeScript lint
         run: npx tsc --noEmit
+      - name: Rome lint
+        run: npx rome check .

@@ -8,12 +8,12 @@ function generator(message: Message, args: string[]) {
         if (typeof text === "string")
             return text
                 .replace(/`/g, "`" + String.fromCharCode(8203))
-                .replace(/@/g, "@" + String.fromCharCode(8203));
+                .replace(/@/g, `@${String.fromCharCode(8203)}`);
         else return text;
     };
 
     function codee(text: string): string {
-        return "```ts\n" + text + "\n```"
+        return "```ts\n" + text + "\n```";
     }
     try {
         const code = args.join(" ");
@@ -21,28 +21,37 @@ function generator(message: Message, args: string[]) {
         if (typeof evaled !== "string") {
             evaled = inspect(evaled);
         }
-        const output = clean(evaled as string)
+        const output = clean(evaled as string);
         if (output.length > 1990) {
-            client.createMessage(message.channel.id, "The output is too long! Check logs!")
-            console.log(output)
-            return
+            client.createMessage(
+                message.channel.id,
+                "The output is too long! Check logs!",
+            );
+            console.log(output);
+            return;
         } else {
-            client.createMessage(message.channel.id, codee(String(output)))
+            client.createMessage(message.channel.id, codee(String(output)));
         }
     } catch (err: any) {
-        client.createMessage(message.channel.id, codee(String(!err.stack ? err : err.stack.replace(/\((.*)\)/g, ''))))
+        client.createMessage(
+            message.channel.id,
+            codee(
+                String(!err.stack ? err : err.stack.replace(/\((.*)\)/g, "")),
+            ),
+        );
     }
 }
 
 class Eval extends MovCommand {
     constructor() {
-        if (!process.env.OWNER_ID) throw new Error("The env OWNER_ID is undefined")
+        if (!process.env.OWNER_ID)
+            throw new Error("The env OWNER_ID is undefined");
         super("eval", generator, {
             hidden: true,
             requirements: {
-                userIDs: process.env.OWNER_ID.split(" ")
-            }
-        })
+                userIDs: process.env.OWNER_ID.split(" "),
+            },
+        });
     }
 }
 

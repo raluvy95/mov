@@ -17,5 +17,5 @@ export enum COLORS {
     WHITE = 0xffffff,
     BLACK = 0x000000,
     GREY = 0x5e5e5e,
-    RANDOM = 999999999999999
+    RANDOM = 999999999999999,
 }
