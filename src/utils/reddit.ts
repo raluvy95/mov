@@ -14,7 +14,7 @@ export async function getSubreddit(
 ) {
 	const now = DateTime.now().toMillis();
 	const RedditStrikeTime = DateTime.fromISO(
-		"2023-06-12T01:00:00.123",
+		"2023-06-11T22:00:00.123"
 	).toMillis();
 	if (now >= RedditStrikeTime) {
 		throw new Error(
