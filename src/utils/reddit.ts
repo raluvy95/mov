@@ -18,7 +18,7 @@ export async function getSubreddit(
 	).toMillis();
 	if (now >= RedditStrikeTime) {
 		throw new Error(
-			"Reddit API is not longer avaliable due to black out until the CEO of Reddit will eventually revert this change!. Not even for 2 days!\nRead more at https://www.reddit.com/r/Save3rdPartyApps/comments/13yh0jf/dont_let_reddit_kill_3rd_party_apps/",
+			"Reddit API is not longer avaliable due to black out until the CEO of Reddit will eventually revert this change!. Not even for 2 days!\nRead more at https://save3rdpartyapps.com/",
 		);
 	}
 	const anyContent = await fetch(
