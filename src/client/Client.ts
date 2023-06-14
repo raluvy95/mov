@@ -5,6 +5,7 @@ import { MovCommand } from './Command';
 import { MovPlugin } from './Plugin';
 import { Collection } from '@discordjs/collection';
 import { ISettingsDB, IUserDB } from '../interfaces/database';
+import { parseName } from '../utils/get';
 
 export interface ClientDatabase {
 	level: MovDB
@@ -229,7 +230,7 @@ class Mov extends CommandClient {
 		}
 
 		this.on("ready", () => {
-			console.log(`Logged as ${this.user.username}#${this.user.discriminator}!`);
+			console.log(`Logged as ${parseName(this.user)}!`);
 		})
 	}
 }

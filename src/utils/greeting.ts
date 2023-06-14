@@ -1,6 +1,7 @@
 import { Guild, Member, MemberPartial } from "eris";
 import { client } from "../client/Client";
 import { ISettingsDB } from "../interfaces/database";
+import { parseName } from "./get";
 
 export async function greeting(
     type: "w" | "g",
@@ -29,16 +30,16 @@ export async function greeting(
     let content = !w.message
         ? "Hello {mention} and welcome to the server! We now have {memberCount}!"
         : w.message
-              .replace("{server}", guild.name)
-              .replace("{memberCount}", guild.memberCount.toString())
-              .replace(
-                  "{name}",
-                  `${member.user.username}#${member.user.discriminator}`,
-              )
-              .replace(
-                  "{user}",
-                  `${member.user.username}#${member.user.discriminator}`,
-              );
+            .replace("{server}", guild.name)
+            .replace("{memberCount}", guild.memberCount.toString())
+            .replace(
+                "{name}",
+                parseName(member.user),
+            )
+            .replace(
+                "{user}",
+                parseName(member.user),
+            );
 
     if (type === "w") {
         content = content.replace("{mention}", `<@${member.id}>`);

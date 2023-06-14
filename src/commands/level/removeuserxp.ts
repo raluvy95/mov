@@ -1,7 +1,7 @@
 import { Message, TextChannel } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import { getUser } from "../../utils/get";
+import { getUser, parseName } from "../../utils/get";
 import { MessageCollector } from "eris-collect";
 async function generator(msg: Message, args: string[]) {
     if (!isNaN(Number(args[0]))) {
@@ -33,7 +33,7 @@ async function generator(msg: Message, args: string[]) {
     });
     client.createMessage(
         msg.channel.id,
-        `Are you sure you want to remove **${user.username}#${user.discriminator}**'s level? [Type 'yes' or 'y' to confirm]`,
+        `Are you sure you want to remove **${parseName(user)}**'s level? [Type 'yes' or 'y' to confirm]`,
     );
     collector.on("end", (c) => {
         const msg = c[0];

@@ -1,7 +1,7 @@
 import { Message } from "eris";
 import { client } from "../client/Client";
 import { ILevelDB, ISettingsDB, IUserDB } from "../interfaces/database";
-import { getMemberByID } from "./get";
+import { getMemberByID, parseName } from "./get";
 import { probability } from "./math";
 
 export function formulaXP(level: number) {
@@ -17,7 +17,7 @@ export async function sendLvlUP(user: string, msg: Message, level: ILevelDB) {
 
         let target = `<@${user}>`;
         if (userPref?.noMentionOnLevelUP) {
-            target = `**${msg.author.username}#${msg.author.discriminator}**`;
+            target = `**${parseName(msg.author)}**`;
         }
 
         const roleRewards = levelDB.modules.level.roleRewards;

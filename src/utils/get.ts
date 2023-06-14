@@ -10,6 +10,15 @@ export async function getUserByID(id: string, cacheOnly?: boolean) {
     }
 }
 
+// Dynamically use discriminator or Discord's new username system
+export function parseName(user: User) {
+    if (user.discriminator.length === 1) {
+        return user.username
+    } else {
+        return `${user.username}#${user.discriminator}`
+    }
+}
+
 export async function getGuildByID(id: string) {
     const cache = client.guilds.get(id);
     if (!cache) {

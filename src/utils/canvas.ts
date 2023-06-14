@@ -10,7 +10,7 @@ import { Message, User } from "eris";
 import { ILevelDB, IUserDB } from "../interfaces/database";
 import { client } from "../client/Client";
 import { getLeaderboardRank } from "./getLeaderboardRank";
-import { getUserByID } from "./get";
+import { getUserByID, parseName } from "./get";
 import { DEFAULT_USER_SETTINGS } from "../constant/defaultConfig";
 
 registerFont("./assets/Roboto-Bold.ttf", {
@@ -177,7 +177,7 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
 
     ctx.globalAlpha = 1;
 
-    const name = `${user.username}#${user.discriminator}`;
+    const name = parseName(user);
 
     await genAvatar(ctx, user, 40, canvas.height / 2 - 60, true);
 
@@ -254,7 +254,7 @@ async function leaderboardContent(
     ctx.closePath();
 
     const u = await getUserByID(entry.id, true);
-    const name = u ? `${u.username}#${u.discriminator}` : entry.id;
+    const name = u ? parseName(u) : entry.id;
 
     ctx.fillStyle = labels.text.mocha.hex;
     ctx.font = "16px 'RobotoB'";
@@ -352,7 +352,7 @@ export async function leaderboardCanvas(
 
     ctx.globalCompositeOperation = "difference";
     ctx.fillStyle = "#ffffff";
-    const name = `${msg.author.username}#${msg.author.discriminator}`;
+    const name = parseName(msg.author);
     let size = 16;
     let nameN = ctx.measureText(name);
     while (nameN.width > 200) {
@@ -368,8 +368,7 @@ export async function leaderboardCanvas(
 
     ctx.fillStyle = "#ffffff";
     ctx.fillText(
-        `Level ${
-            yourRank.data.level
+        `Level ${yourRank.data.level
         } | Total XP: ${yourRank.data.totalxp.toLocaleString()}`,
         280,
         positionI,
