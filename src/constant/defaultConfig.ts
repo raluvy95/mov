@@ -9,16 +9,6 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
             channelId: "1234567897654321",
             timezone: "Europe/London",
         },
-        autopost: {
-            enable: false,
-            instances: [
-                {
-                    name: "lol",
-                    channelId: "12345678234567",
-                    subreddits: ["memes", "dankmemes"],
-                },
-            ],
-        },
         welcome: {
             enable: false,
             channelId: "channel ID",

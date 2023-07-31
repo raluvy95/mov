@@ -31,9 +31,6 @@ add instances {"name": "New instance", "url": ["https://url.to.rss"], "channelId
 set customMsg New news just dropped! {link}`,
     bump: `
 set roleID 1234567890123`,
-    autopost: `
-add instances {"name": "memes", "channelId": "12345678901234", "subreddits": ["memes", "dankmemes"]}
-set instances [{"name": "memes", "channelId": "12345678901234", "subreddits": ["memes", "dankmemes"]}]`,
     autopublish: "",
     messageReference: "",
     clock: "",
@@ -62,7 +59,6 @@ export const VARIABLES: base = {
     \`{url}\` - Link to RSS article
     `,
     bump: "",
-    autopost: "",
     autopublish: "",
     messageReference: "",
     clock: "",

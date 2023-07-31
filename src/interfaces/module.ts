@@ -1,12 +1,4 @@
 export interface Modules {
-    autopost: Partial<{
-        enable: boolean;
-        instances: {
-            name: string;
-            channelId: string;
-            subreddits: string[];
-        }[];
-    }>;
     welcome: Partial<{
         enable: boolean;
         channelId: string;
