@@ -82,25 +82,27 @@ async function generator(msg: Message, args: string[]) {
     }
     const init_time = DateTime.now();
 
-    await client.sendChannelTyping(msg.channel.id);
+    client.createMessage(msg.channel.id, "Ok, please be patient while processing. May take longer depending on image size.").then(async () => {
+        await client.sendChannelTyping(msg.channel.id);
 
-    const generated = await catppify(link, palette as Palette, noise as Noise);
+        const generated = await catppify(link, palette as Palette, noise as Noise);
 
-    const final_time = DateTime.now();
-    const diff = final_time.diff(init_time, [
-        "hours",
-        "minutes",
-        "seconds",
-        "milliseconds",
-    ]);
-    client.createMessage(
-        msg.channel.id,
-        `Here you go (Took ${ms(diff.toMillis())})`,
-        {
-            file: generated,
-            name: "generated.png",
-        },
-    );
+        const final_time = DateTime.now();
+        const diff = final_time.diff(init_time, [
+            "hours",
+            "minutes",
+            "seconds",
+            "milliseconds",
+        ]);
+        client.createMessage(
+            msg.channel.id,
+            `Here you go (Took ${ms(diff.toMillis())})`,
+            {
+                file: generated,
+                name: "generated.png",
+            },
+        );
+    })
 }
 
 class Catppify extends MovCommand {
