@@ -15,6 +15,8 @@ export async function sendLvlUP(user: string, msg: Message, level: ILevelDB) {
             process.env.SERVER_ID!,
         ))!;
 
+        const roleRewardsReceived: string[] = [];
+
         let target = `<@${user}>`;
         if (userPref?.noMentionOnLevelUP) {
             target = `**${parseName(msg.author)}**`;
@@ -41,6 +43,7 @@ export async function sendLvlUP(user: string, msg: Message, level: ILevelDB) {
                                 err,
                             );
                         });
+                    roleRewardsReceived.push(role.ID)
                 }
             }
         }
@@ -61,12 +64,24 @@ export async function sendLvlUP(user: string, msg: Message, level: ILevelDB) {
             targetMsg +=
                 "\n\nTired of getting pinged? Use `sudo uconf noMentionOnLevelUP true` and I won't ping you on level up!";
         }
+        if (roleRewardsReceived.length > 0) {
+            if (targetChannelID === undefined || targetChannelID === "0"
+                ? msg.channel.id
+                : targetChannelID! === msg.channel.id) {
+                targetMsg += `\nYou earned ${roleRewardsReceived.map(m => `<@&${m}>`).join(", ")}!`
+            } else {
+                client.createMessage(msg.channel.id, { content: `**Congratulations!** You earned ${roleRewardsReceived.map(m => `<@&${m}>`).join(", ")} for reaching level ${level.level}!`, allowedMentions: { users: true, roles: false } })
+            }
+        }
         client
             .createMessage(
                 targetChannelID === undefined || targetChannelID === "0"
                     ? msg.channel.id
                     : targetChannelID!,
-                targetMsg,
+                {
+                    content: targetMsg,
+                    allowedMentions: { users: true, roles: false }
+                },
             )
             .catch((e) => console.error("Failed to send lvl up message", e));
     } else {
