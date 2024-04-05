@@ -132,8 +132,13 @@ async function generateBg(
             (customBackgroundURL !== "color"
                 ? customBackgroundURL
                 : colorAccent) || user.dynamicBannerURL("png")!;
-        const img = await loadImage(url);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        try {
+            const img = await loadImage(url);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        } catch {
+            ctx.fillStyle = colorAccent;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
     }
 }
 
