@@ -5,7 +5,7 @@ import {
     loadImage,
     registerFont,
 } from "canvas";
-import { labels } from "@catppuccin/palette";
+import { flavors } from "@catppuccin/palette";
 import { Message, User } from "eris";
 import { ILevelDB, IUserDB } from "../interfaces/database";
 import { client } from "../client/Client";
@@ -16,6 +16,25 @@ import { DEFAULT_USER_SETTINGS } from "../constant/defaultConfig";
 registerFont("./assets/Roboto-Bold.ttf", {
     family: "RobotoB",
 });
+
+function colorRank(ctx: CanvasRenderingContext2D, rank: number) {
+    switch (rank) {
+        case 1:
+            ctx.fillStyle = flavors.mocha.colors.yellow.hex;
+            break;
+        case 2:
+            // grey aka silver
+            ctx.fillStyle = flavors.mocha.colors.subtext1.hex;
+            break;
+        case 3:
+            // catppuccin doesn't have bronze color
+            ctx.fillStyle = "#c6902eff";
+            break;
+        default:
+            ctx.fillStyle = flavors.mocha.colors.overlay0.hex;
+            break;
+    }
+}
 
 async function progressBar(
     ctx: CanvasRenderingContext2D,
@@ -31,7 +50,7 @@ async function progressBar(
 
     const fillN = Math.floor((currentXP / requiredXP) * width);
 
-    ctx.fillStyle = labels.crust.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.crust.hex;
     ctx.beginPath();
     ctx.roundRect(x, y, width, height, 10);
     ctx.fill();
@@ -124,22 +143,7 @@ function rankTxt(
     x: number,
     y: number,
 ) {
-    switch (rank) {
-        case 1:
-            ctx.fillStyle = labels.yellow.mocha.hex;
-            break;
-        case 2:
-            // grey aka silver
-            ctx.fillStyle = labels.subtext1.mocha.hex;
-            break;
-        case 3:
-            // catppuccin doesn't have bronze color
-            ctx.fillStyle = "#c6902eff";
-            break;
-        default:
-            ctx.fillStyle = labels.overlay0.mocha.hex;
-            break;
-    }
+    colorRank(ctx, rank);
     ctx.fillText(`#${rank}`, x, y);
 }
 
@@ -163,7 +167,7 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
 
     await generateBg(canvas, ctx, user);
 
-    ctx.fillStyle = labels.base.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.base.hex;
     if (customBackgroundURL !== "color") {
         ctx.globalAlpha = 0.5;
     }
@@ -182,7 +186,7 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     await genAvatar(ctx, user, 40, canvas.height / 2 - 60, true);
 
     ctx.font = "16px 'RobotoB'";
-    ctx.fillStyle = labels.text.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.text.hex;
     let size = 16;
     let nameW = ctx.measureText(name);
     while (canvasContent.w / 4 - nameW.width / 2 < 20) {
@@ -197,7 +201,7 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     );
 
     ctx.font = "16px 'RobotoB'";
-    ctx.fillStyle = labels.overlay2.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.overlay2.hex;
     const totalXPstr = `Total XP: ${level.totalxp.toLocaleString()}`;
     const ttttwidth = ctx.measureText(totalXPstr);
     ctx.fillText(
@@ -227,7 +231,7 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     );
 
     const leaderboardRank = await getLeaderboardRank(user.id);
-    ctx.fillStyle = labels.overlay0.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.overlay0.hex;
     ctx.font = "20px 'RobotoB'";
     rankTxt(
         ctx,
@@ -247,7 +251,7 @@ async function leaderboardContent(
     index: number,
 ): Promise<void> {
     const contentIndex = 35 * index;
-    ctx.fillStyle = labels.base.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.base.hex;
     ctx.beginPath();
     ctx.roundRect(10, contentIndex, canvas.width - 20, 30, 5);
     ctx.fill();
@@ -256,26 +260,11 @@ async function leaderboardContent(
     const u = await getUserByID(entry.id, true);
     const name = u ? parseName(u) : entry.id;
 
-    ctx.fillStyle = labels.text.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.text.hex;
     ctx.font = "16px 'RobotoB'";
-    switch (rank + 1) {
-        case 1:
-            ctx.fillStyle = labels.yellow.mocha.hex;
-            break;
-        case 2:
-            // grey aka silver
-            ctx.fillStyle = labels.subtext1.mocha.hex;
-            break;
-        case 3:
-            // catppuccin doesn't have bronze color
-            ctx.fillStyle = "#c6902eff";
-            break;
-        default:
-            ctx.fillStyle = labels.overlay0.mocha.hex;
-            break;
-    }
+    colorRank(ctx, rank + 1);
     ctx.fillText(`#${rank + 1}`, 15, contentIndex + 20);
-    ctx.fillStyle = labels.text.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.text.hex;
     let size = 16;
     let nameN = ctx.measureText(name);
     while (nameN.width > 200) {
@@ -286,9 +275,9 @@ async function leaderboardContent(
     ctx.fillText(name, 50, contentIndex + 20, 250);
 
     ctx.font = "16px 'RobotoB'";
-    ctx.fillStyle = labels.subtext1.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.subtext1.hex;
     ctx.fillText("•", 260, contentIndex + 20);
-    ctx.fillStyle = labels.text.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.text.hex;
     ctx.fillText(
         `Level ${entry.value.level.toLocaleString()} | Total XP: ${entry.value.totalxp.toLocaleString()}`,
         280,
@@ -304,7 +293,7 @@ export async function leaderboardCanvas(
     const canvas = createCanvas(550, 35 * levels.length + 60);
     const ctx = canvas.getContext("2d");
 
-    ctx.fillStyle = labels.crust.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.crust.hex;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (page === 0) page = +1;
@@ -329,23 +318,8 @@ export async function leaderboardCanvas(
     const yourRank = await getLeaderboardRank(msg.author.id);
     const positionI = 35 * index + 35;
 
-    switch (yourRank.rank) {
-        case 1:
-            ctx.fillStyle = labels.yellow.mocha.hex;
-            break;
-        case 2:
-            // grey aka silver
-            ctx.fillStyle = labels.subtext1.mocha.hex;
-            break;
-        case 3:
-            // catppuccin doesn't have bronze color
-            ctx.fillStyle = "#c6902eff";
-            break;
-        default:
-            ctx.fillStyle = labels.overlay0.mocha.hex;
-            break;
-    }
-    ctx.strokeStyle = labels.crust.mocha.hex;
+    colorRank(ctx, yourRank.rank);
+    ctx.strokeStyle = flavors.mocha.colors.crust.hex;
     ctx.lineWidth = 3;
     ctx.fillText(`#${yourRank.rank}`, 15, positionI);
     ctx.stroke();
@@ -363,7 +337,7 @@ export async function leaderboardCanvas(
     ctx.fillText(name, 50, positionI, 250);
 
     ctx.font = "16px 'RobotoB'";
-    ctx.fillStyle = labels.subtext1.mocha.hex;
+    ctx.fillStyle = flavors.mocha.colors.subtext1.hex;
     ctx.fillText("•", 260, positionI);
 
     ctx.fillStyle = "#ffffff";

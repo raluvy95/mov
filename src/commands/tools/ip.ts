@@ -1,6 +1,5 @@
 import { Message } from "eris";
 import { isIPv4 } from "net";
-import fetch from "node-fetch";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
@@ -17,7 +16,7 @@ async function generator(msg: Message, args: string[]) {
     const jj = await fetch(
         `https://ipinfo.io/${encodeURIComponent(args[0])}/geo`,
     );
-    const info = await jj.json();
+    const info = await jj.json() as { city: string, region: string, country: string, loc: string, ip: string, timezone: string, postal: string };
     const e = new MovEmbed()
         .setTitle(`IP: ${info.ip}`)
         .setDesc(

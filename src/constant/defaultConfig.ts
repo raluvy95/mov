@@ -1,4 +1,4 @@
-import { labels } from "@catppuccin/palette";
+import { flavors } from "@catppuccin/palette";
 import { ISettingsDB, IUserDB } from "../interfaces/database";
 
 export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
@@ -67,7 +67,7 @@ export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
 export const DEFAULT_USER_SETTINGS: IUserDB = {
     prefix: "$",
     aliases: [],
-    colorAccent: labels.mauve.mocha.hex,
+    colorAccent: flavors.mocha.colors.mauve.hex,
     noMentionOnLevelUP: false,
     customBackgroundURL: "color",
     useLegacyRank: false,
