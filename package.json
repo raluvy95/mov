@@ -18,7 +18,6 @@
         "@types/luxon": "^3.4.2",
         "@types/ms": "^0.7.34",
         "@types/node": "^20.12.4",
-        "@types/node-fetch": "^2.6.11",
         "nodemon": "^3.1.0",
         "rimraf": "^5.0.5",
         "rome": "^12.1.3",

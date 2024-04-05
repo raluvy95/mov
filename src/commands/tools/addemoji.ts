@@ -1,5 +1,4 @@
 import { Message } from "eris";
-import fetch from "node-fetch";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { urlToDataURI } from "../../utils/canvas";
@@ -35,9 +34,8 @@ async function generator(msg: Message, args: string[]) {
             ? args[0].replace("<a:", "").replace(">", "")
             : args[0].replace("<:", "").replace(">", "");
         const [name, id] = emote.split(":");
-        const url = `https://cdn.discordapp.com/emojis/${id}.${
-            animated ? "gif" : "png"
-        }`;
+        const url = `https://cdn.discordapp.com/emojis/${id}.${animated ? "gif" : "png"
+            }`;
         client
             .createGuildEmoji(msg.guildID!, {
                 name: name,
@@ -46,8 +44,7 @@ async function generator(msg: Message, args: string[]) {
             .then((e) => {
                 client.createMessage(
                     msg.channel.id,
-                    `I added <${e.animated ? "a" : ""}:${e.name}:${
-                        e.id
+                    `I added <${e.animated ? "a" : ""}:${e.name}:${e.id
                     }> to this guild!`,
                 );
             })
@@ -74,8 +71,7 @@ async function generator(msg: Message, args: string[]) {
             .then((e) => {
                 client.createMessage(
                     msg.channel.id,
-                    `I added <${e.animated ? "a" : ""}:${e.name}:${
-                        e.id
+                    `I added <${e.animated ? "a" : ""}:${e.name}:${e.id
                     }> to this guild!`,
                 );
             })

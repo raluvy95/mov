@@ -1,7 +1,6 @@
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import fetch from "node-fetch";
 
 function generator(msg: Message, _args: string[]) {
     const err = "There's something went wrong with cat. No cat for you :(";
@@ -9,11 +8,11 @@ function generator(msg: Message, _args: string[]) {
     fetch("https://cataas.com/cat")
         .then(async (r) => {
             try {
-                const j = await r.buffer();
+
+                const j = await r.blob();
+                const imgLink = URL.createObjectURL(j);
                 client.createMessage(
-                    msg.channel.id,
-                    {},
-                    { file: j, name: "cat.png" },
+                    msg.channel.id, imgLink
                 );
             } catch {
                 client.createMessage(msg.channel.id, err);

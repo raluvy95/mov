@@ -1,5 +1,4 @@
 import { FileContent, MessageContent } from "eris";
-import fetch from "node-fetch";
 import { client } from "../client/Client";
 import { MovEmbed } from "../client/Embed";
 import { MovPlugin } from "../client/Plugin";
@@ -47,7 +46,7 @@ export default new MovPlugin("messageReference", {
                     for (const a of msgRef.attachments) {
                         file.push({
                             name: a.filename,
-                            file: await fetch(a.url).then((r) => r.buffer()),
+                            file: URL.createObjectURL(await fetch(a.url).then((r) => r.blob())),
                         });
                     }
                 }
