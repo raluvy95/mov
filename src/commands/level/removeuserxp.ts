@@ -2,7 +2,7 @@ import { Message, TextChannel } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { getUser, parseName } from "../../utils/get";
-import { MessageCollector } from "eris-collect";
+import { MessageCollector } from "../../lib/eris-collect";
 async function generator(msg: Message, args: string[]) {
     if (!isNaN(Number(args[0]))) {
         const success = await client.database.level.delete(args[0]);

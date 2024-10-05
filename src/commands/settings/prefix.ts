@@ -3,7 +3,7 @@ import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { ISettingsDB } from "../../interfaces/database";
 import { makeid } from "../../utils/makeid";
-import { MessageCollector } from "eris-collect";
+import { MessageCollector } from "../../lib/eris-collect";
 
 async function generator(msg: Message, args: string[]) {
     if (args.length < 1) {

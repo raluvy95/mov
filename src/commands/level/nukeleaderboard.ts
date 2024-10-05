@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "eris";
-import { MessageCollector } from "eris-collect";
+import { MessageCollector } from "../../lib/eris-collect"
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { makeid } from "../../utils/makeid";
