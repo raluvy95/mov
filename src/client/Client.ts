@@ -25,7 +25,7 @@ class Mov extends CommandClient {
 		super(process.env.DISCORD_TOKEN, {
 			intents: ["guildMembers", "guildMessages", "guilds", "guildMembers",
 				"guildMessageReactions", "guildWebhooks", "guildEmojis",
-				"guildVoiceStates"],
+				"guildVoiceStates", "messageContent"],
 			restMode: true,
 		}, {
 			prefix: ["$", "sudo "],
@@ -56,7 +56,6 @@ class Mov extends CommandClient {
 
 	private async userCommandResolver(label: string, userDB?: IUserDB | null) {
 		if (!userDB) return undefined;
-
 		label = userDB.aliases.find(m => m.alias.includes(label))?.commandTarget || label;
 		let command = this.commands[label];
 		if (command) {
@@ -134,23 +133,19 @@ class Mov extends CommandClient {
 		let prefixes = this.commandOptions.prefix;
 		const userPref = (await this.database.user.get<IUserDB>(msg.author.id))?.prefix.toLowerCase();
 		const server = (await this.database.settings.get<ISettingsDB>(msg.guildID!))?.prefix.toLowerCase();
-
 		if (userPref || server) {
 			prefixes = userPref || server;
-		} else if (msg.mentions.includes(this.user)) {
-			prefixes = this.user.id;
-			msg.prefix = `<@${this.user.id}>`;
-		} else if (msg.channel.guild !== undefined && this.guildPrefixes[msg.channel.guild.id] !== undefined) {
+		}
+		else if (msg.channel.guild !== undefined && this.guildPrefixes[msg.channel.guild.id] !== undefined) {
 			prefixes = this.guildPrefixes[msg.channel.guild.id];
 		}
+
 		if (typeof prefixes === "string") {
-			if (!msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefixes) && typeof server === "string") {
-				prefixes = server;
-			}
-			return msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefixes) && prefixes;
+			return msg.content.toLowerCase().startsWith(prefixes) && prefixes;
 		} else if (Array.isArray(prefixes)) {
-			return prefixes.find((prefix) => msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefix));
+			return prefixes.find((prefix) => msg.content.toLowerCase().startsWith(prefix)) && prefixes;
 		}
+
 		throw new Error(`Unsupported prefix format | ${prefixes}`);
 	}
 
@@ -176,7 +171,7 @@ class Mov extends CommandClient {
 			const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : '';
 			const responseS = server?.prefix ? `The bot's prefix is \`${server.prefix}\`` : '';
 			const com = `${responseU} ${responseS}`;
-			if (com.length === 1) {
+			if (com.length === 0) {
 				client.createMessage(msg.channel.id, "Hello! You can response me with mention! Use `<@" + this.user.username + "> help` to get started!");
 			} else {
 				client.createMessage(msg.channel.id, `Hey!\n${com}`);
@@ -184,7 +179,9 @@ class Mov extends CommandClient {
 		}
 
 		const userPref = await this.database.user.get<IUserDB>(msg.author.id);
-		if ((msg.prefix as any) = await this.checkPrefixMod(msg)) {
+		const e = await this.checkPrefixMod(msg)
+		console.log(e)
+		if ((msg.prefix as any) = e) {
 			this.commandHandler(msg, userPref || undefined);
 		}
 	}
