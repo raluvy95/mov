@@ -10,9 +10,9 @@ function generator(msg: Message, _args: string[]) {
             try {
 
                 const j = await r.blob();
-                const imgLink = URL.createObjectURL(j);
+                const buff = Buffer.from(await j.arrayBuffer())
                 client.createMessage(
-                    msg.channel.id, imgLink
+                    msg.channel.id, "here's a kitty 🐱", { name: "kitty.png", file: buff }
                 );
             } catch {
                 client.createMessage(msg.channel.id, err);
