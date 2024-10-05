@@ -11,7 +11,7 @@ async function generator(msg: Message, args: string[]) {
     if (!userId || !xp || !totalXP || !level) {
         client.createMessage(
             msg.channel.id,
-            `Usage: \`${msg.prefix}${msg.command} <userid> <xp> <totalXP> <level>\``,
+            `Usage: \`${msg.prefix}migrate <userid> <xp> <totalXP> <level>\``,
         );
         return;
     }

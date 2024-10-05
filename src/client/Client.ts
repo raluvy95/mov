@@ -179,9 +179,7 @@ class Mov extends CommandClient {
 		}
 
 		const userPref = await this.database.user.get<IUserDB>(msg.author.id);
-		const e = await this.checkPrefixMod(msg)
-		console.log(e)
-		if ((msg.prefix as any) = e) {
+		if ((msg.prefix as any) = await this.checkPrefixMod(msg)) {
 			this.commandHandler(msg, userPref || undefined);
 		}
 	}

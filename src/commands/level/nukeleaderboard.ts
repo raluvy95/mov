@@ -14,13 +14,13 @@ function generator(msg: Message, _args: string[]) {
     });
     client.createMessage(
         msg.channel.id,
-        `Are you sure to nuke the leaderboard? **THIS ACTION CANNOT BE REVERTED**\nPlease type \`${id}\` to confirm!`,
+        `Are you sure you want to nuke the leaderboard? **THIS ACTION CANNOT BE REVERTED**\nPlease type \`${id}\` to confirm!`,
     );
     collector.on("end", (c) => {
         const msg = c[0];
         if (msg.content === id) {
             client.database.level.deleteAll();
-            client.createMessage(msg.channel.id, "NUKED!");
+            client.createMessage(msg.channel.id, "**NUKED!** If you actually changed your mind, there's no way to restore it. Sorry about that.");
         } else {
             client.createMessage(msg.channel.id, "Ok, cancelled.");
         }

@@ -1,7 +1,7 @@
 import { dateToString } from "./dateToString";
 
 export function debug(...info: any[]) {
-    if (process.env.DEBUG) {
+    if (Number(process.env.DEBUG)) {
         const date = new Date();
         console.debug(
             `[DEBUG - ${dateToString(date, {
