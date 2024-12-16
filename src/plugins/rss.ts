@@ -9,7 +9,7 @@ const cache = new MovDB("cache");
 
 export default new MovPlugin("rss", {
     event: "ready",
-    async run() {s
+    async run() {
         setInterval(async () => {
             const rssdb = await client.database.settings.get<ISettingsDB>(
                 process.env.SERVER_ID!,
