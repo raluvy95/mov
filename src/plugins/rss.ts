@@ -9,7 +9,7 @@ const cache = new MovDB("cache");
 
 export default new MovPlugin("rss", {
     event: "ready",
-    async run() {
+    async run() {s
         setInterval(async () => {
             const rssdb = await client.database.settings.get<ISettingsDB>(
                 process.env.SERVER_ID!,
@@ -23,14 +23,18 @@ export default new MovPlugin("rss", {
             for (const instance of rss.instances) {
                 for (const url of instance.url) {
                     try {
-                        const cached = await cache.get<string>(url);
+                        var cached = await cache.get<string[]>(url);
+                        if (!cached) {
+                            cached = [];
+                        }
                         const parsed = await parse(url);
                         const latestContent = parsed.items[0];
                         if (Array.isArray(latestContent.link)) {
                             // Atom support
                             latestContent.link = latestContent.link[0].href;
                         }
-                        if (!cached || latestContent.link !== cached) {
+                        if (!cached.includes(latestContent.link)) {
+                            cache.set(url, cached.slice(-3).concat(latestContent.link));
                             const content = !rss.customMsg
                                 ? "📰 | {url}"
                                 : rss.customMsg;
@@ -40,7 +44,6 @@ export default new MovPlugin("rss", {
                                     .replace("{url}", latestContent.link)
                                     .replace("{title}", latestContent.title),
                             });
-                            cache.set(url, latestContent.link);
                         }
                     } catch (e) {
                         console.error(e);
