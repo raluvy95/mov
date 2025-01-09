@@ -27,7 +27,7 @@ export async function sendLvlUP(user: string, msg: Message, level: ILevelDB) {
         if (roleRewards !== undefined && roleRewards.length > 0) {
             const member = await getMemberByID(user);
 
-            const itexist = roleRewards.filter((m) => m.level === level?.level);
+            const itexist = roleRewards.filter((m) => m.level <= level?.level);
             if (itexist && itexist.length > 0) {
                 for (const role of itexist) {
                     if (member.roles.findIndex((m) => m === role.ID) !== -1)
