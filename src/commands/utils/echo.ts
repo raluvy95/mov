@@ -10,7 +10,7 @@ function generator(msg: Message, args: string[]) {
     client
         .createMessage(
             msg.channel.id,
-            `${args.join(" ")}\n\n  *- ${msg.author.username}*`,
+            `${args.join(" ")}\n *- ${msg.author.username}*`,
         )
         .catch(() => {
             client.createMessage(
