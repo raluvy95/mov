@@ -19,7 +19,10 @@ async function generator(msg: Message, args: string[]) {
 
 class Summon extends MovCommand {
     constructor() {
-        super("summon", generator, {});
+        super("summon", generator, {
+            description: "Summon yourself into a webhook",
+            usage: "[msg]"
+        });
     }
 }
 

@@ -29,6 +29,7 @@ class IP extends MovCommand {
     constructor() {
         super("ip", generator, {
             description: "Get information from specific IPv4",
+            usage: "<IP>",
             cooldown: 5 * 1000,
         });
     }

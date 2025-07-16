@@ -51,14 +51,14 @@ async function generator(msg: Message, args: string[]) {
             .catch((e) =>
                 client.createMessage(
                     msg.channel.id,
-                    `It looks like I got an error!\n${e}`,
+                    `I got an error!\n${e}`,
                 ),
             );
     } else if (isURL(args)) {
         if (!args[1]) {
             client.createMessage(
                 msg.channel.id,
-                "Please tell what name is that cuz I can't create new emote without any name",
+                "Please tell what name is that. Unable to create new emoji without name",
             );
             return;
         }
@@ -90,6 +90,8 @@ async function generator(msg: Message, args: string[]) {
 class AddEmoji extends MovCommand {
     constructor() {
         super("addemoji", generator, {
+            description: "Clone emoji to this server",
+            usage: "<emoji or URL> <name if URL is input>",
             requirements: {
                 permissions: {
                     manageEmojisAndStickers: true,
