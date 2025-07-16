@@ -11,7 +11,8 @@ export interface ClientDatabase {
 	level: MovDB
 	settings: SettingsDB
 	user: MovDB,
-	cmdStat: MovDB
+	cmdStat: MovDB,
+	cache: MovDB
 }
 
 class Mov extends CommandClient {
@@ -46,7 +47,8 @@ class Mov extends CommandClient {
 			level: new LevelDB(),
 			settings: new SettingsDB(process.env.SERVER_ID),
 			user: new UserDB(),
-			cmdStat: new CmdStatDB()
+			cmdStat: new CmdStatDB(),
+			cache: new MovDB("cache")
 		};
 
 		this.cooldownLevel = new Collection();

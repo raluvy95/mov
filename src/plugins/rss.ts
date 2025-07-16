@@ -1,11 +1,8 @@
 import parse from "rss-to-json";
 import { client } from "../client/Client";
-import { MovDB } from "../client/Database";
 import { MovPlugin } from "../client/Plugin";
 import { ISettingsDB } from "../interfaces/database";
 import { summonWebhook } from "../utils/summonWebhook";
-
-const cache = new MovDB("cache");
 
 export default new MovPlugin("rss", {
     event: "ready",
@@ -23,7 +20,7 @@ export default new MovPlugin("rss", {
             for (const instance of rss.instances) {
                 for (const url of instance.url) {
                     try {
-                        var cached = await cache.get<string[]>(url);
+                        var cached = await client.database.cache.get<string[]>(url);
                         if (!cached) {
                             cached = [];
                         }
@@ -34,7 +31,7 @@ export default new MovPlugin("rss", {
                             latestContent.link = latestContent.link[0].href;
                         }
                         if (!cached.includes(latestContent.link)) {
-                            cache.set(url, cached.slice(-3).concat(latestContent.link));
+                            client.database.cache.set(url, cached.slice(-3).concat(latestContent.link));
                             const content = !rss.customMsg
                                 ? "📰 | {url}"
                                 : rss.customMsg;
