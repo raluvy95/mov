@@ -1,48 +1,65 @@
-import { Message } from "eris";
+import { Message, TextChannel } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { ILevelDB } from "../../interfaces/database";
+import { MessageCollector } from "../../lib/eris-collect";
 
 async function generator(msg: Message, args: string[]) {
     const userId = args[0];
-    const xp = args[1];
-    const totalXP = args[2];
-    const level = args[3];
-    if (!userId || !xp || !totalXP || !level) {
+    const anotherUserId = args[1];
+    if (!userId || !anotherUserId) {
         client.createMessage(
             msg.channel.id,
-            `Usage: \`${msg.prefix}migrate <userid> <xp> <totalXP> <level>\``,
+            `Usage: \`${msg.prefix}migrate <src-userid> <dest-userid>\``,
         );
         return;
     }
-    if (await client.database.level.has(userId)) {
-        client.database.level.set<ILevelDB>(userId, {
-            xp: Number(xp),
-            level: Number(level),
-            totalxp: Number(totalXP),
-        });
-        client.createMessage(
-            msg.channel.id,
-            "That user is already exist, but I will overwrite it.",
-        );
+    const srcUserId = await client.database.level.get<ILevelDB>(userId);
+    if (!srcUserId) {
+        client.createMessage(msg.channel.id, "Cannot find that source user. Use the command `adduserlb` to add this user.")
         return;
     }
-    client.database.level.set<ILevelDB>(userId, {
-        xp: Number(xp),
-        level: Number(level),
-        totalxp: Number(totalXP),
+
+    const filter = (message: Message) => message.author.id === msg.author.id;
+    const collector = new MessageCollector(client, msg.channel as TextChannel, {
+        filter,
+        time: 30000,
+        max: 1,
     });
     client.createMessage(
         msg.channel.id,
-        `Successfully set for \`${userId}\`'s level and xp`,
+        `Do you want to remove this source user's level?`,
     );
+    collector.on("end", (c) => {
+        const msg = c[0];
+        if (msg.content.toLowerCase().startsWith("y")) {
+            client.database.level.delete(userId);
+            proceed()
+        } else {
+            client.createMessage(msg.channel.id, "Ok, won't delete ");
+            proceed()
+        }
+    });
+
+    function proceed() {
+        client.database.level.set<ILevelDB>(anotherUserId, {
+            xp: Number(srcUserId?.xp),
+            level: Number(srcUserId?.level),
+            totalxp: Number(srcUserId?.totalxp),
+        });
+        client.createMessage(
+            msg.channel.id,
+            `Successfully migrated to \`${anotherUserId}\`!`,
+        );
+    }
     return;
 }
 
 class Migrate extends MovCommand {
     constructor() {
         super("migrate", generator, {
-            description: "Same thing as adduserlb, but with totalxp as an argument.",
+            description: "Copy from another user. Requires owner permission",
+            usage: "<src-userid> <dest-userid>",
             requirements: {
                 userIDs: process.env.OWNER_ID!.split(" ")
             }
