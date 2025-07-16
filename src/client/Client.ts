@@ -229,7 +229,7 @@ class Mov extends CommandClient {
 		}
 
 		this.on("ready", () => {
-			console.log(`Logged as ${parseName(this.user)}!`);
+			console.log(`Logged as ${parseName(this.user)} (${this.user.id})!`);
 		})
 	}
 }
