@@ -1,4 +1,4 @@
-import { ClientEvents } from "eris";
+import type { ClientEvents } from "eris";
 
 interface MovPluginEvent<K extends keyof ClientEvents> {
     event: K;
