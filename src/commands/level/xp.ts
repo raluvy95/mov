@@ -1,7 +1,7 @@
 import { Message, User } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import { ILevelDB, IUserDB } from "../../interfaces/database";
+import type { ILevelDB, IUserDB } from "../../interfaces/database";
 import { getUser } from "../../utils/get";
 import { legacyRank } from "../../utils/legacy";
 

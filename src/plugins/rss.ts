@@ -1,7 +1,7 @@
 import parse from "rss-to-json";
 import { client } from "../client/Client";
 import { MovPlugin } from "../client/Plugin";
-import { ISettingsDB } from "../interfaces/database";
+import type { ISettingsDB } from "../interfaces/database";
 import { summonWebhook } from "../utils/summonWebhook";
 
 export default new MovPlugin("rss", {

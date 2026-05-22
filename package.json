@@ -1,48 +1,45 @@
 {
-    "name": "mov",
-    "version": "1.0.0",
-    "description": "Discord bot written in Eris",
-    "main": "src/index.ts",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "tsc && node ./build/index.js",
-        "watch": "nodemon --exec npm run start",
-        "clean": "rimraf ./build/",
-        "migrate": "node src/migrationDatabase.js"
-    },
-    "keywords": [],
-    "author": "raluvy95",
-    "license": "Unlicense",
-    "devDependencies": {
-        "@types/better-sqlite3": "^7.6.12",
-        "@types/cross-spawn": "^6.0.6",
-        "@types/luxon": "^3.4.2",
-        "@types/ms": "^2.1.0",
-        "@types/node": "^20.12.4",
-        "nodemon": "^3.1.9",
-        "rimraf": "^6.0.1",
-        "typescript": "^5.8.2"
-    },
-    "dependencies": {
-        "@catppuccin/palette": "^1.7.1",
-        "@discordjs/collection": "^2.1.1",
-        "better-sqlite3": "^11.9.0",
-        "canvas": "^3.1.0",
-        "cross-spawn": "^7.0.6",
-        "dotenv": "^16.4.7",
-        "eris": "^0.18.0",
-        "luxon": "^3.5.0",
-        "ms": "^2.1.3",
-        "rss-to-json": "^2.1.1"
-    },
-    "private": true,
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/raluvy95/mov.git"
-    },
-    "bugs": {
-        "url": "https://github.com/raluvy95/mov/issues"
-    },
-    "homepage": "https://github.com/raluvy95/mov#readme",
-    "icon": "./movicon.png"
+  "name": "mov",
+  "version": "1.0.0",
+  "description": "Discord bot written in Eris",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bun ./src/index.ts",
+    "watch": "nodemon --exec npm run start",
+    "clean": "rimraf ./build/",
+    "migrate": "node src/migrationDatabase.js"
+  },
+  "keywords": [],
+  "author": "raluvy95",
+  "license": "Unlicense",
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/luxon": "^3.4.2",
+    "@types/ms": "^2.1.0",
+    "nodemon": "^3.1.9",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@catppuccin/palette": "^1.7.1",
+    "@discordjs/collection": "^2.1.1",
+    "canvas": "^3.1.0",
+    "cross-spawn": "^7.0.6",
+    "eris": "^0.18.0",
+    "luxon": "^3.5.0",
+    "ms": "^2.1.3",
+    "rss-to-json": "^2.1.1"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raluvy95/mov.git"
+  },
+  "bugs": {
+    "url": "https://github.com/raluvy95/mov/issues"
+  },
+  "homepage": "https://github.com/raluvy95/mov#readme",
+  "icon": "./movicon.png"
 }

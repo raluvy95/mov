@@ -1,7 +1,7 @@
 import { Message, TextChannel } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import { ISettingsDB } from "../../interfaces/database";
+import type { ISettingsDB } from "../../interfaces/database";
 import { makeid } from "../../utils/makeid";
 import { MessageCollector } from "../../lib/eris-collect";
 
@@ -26,14 +26,14 @@ async function generator(msg: Message, args: string[]) {
     });
     client.createMessage(
         msg.channel.id,
-        `Are you sure you want to change this bot's prefix to \`${args[0].replace(/"/g, "")}\`?\nPlease type \`${id}\` to confirm!`,
+        `Are you sure you want to change this bot's prefix to \`${args[0]!.replace(/"/g, "")}\`?\nPlease type \`${id}\` to confirm!`,
     );
     collector.on("end", (c) => {
         const response = c[0];
         if (response?.content === id) {
             client.database.settings.set(
                 `${msg.guildID!}.prefix`,
-                args[0].replace(/"/g, ""),
+                args[0]!.replace(/"/g, ""),
             );
             client.createMessage(
                 msg.channel.id,

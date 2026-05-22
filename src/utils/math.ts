@@ -1,4 +1,4 @@
-export function pick<T>(thing: Array<T>): T {
+export function pick<T>(thing: Array<T>): T | undefined {
     return thing[Math.floor(Math.random() * thing.length)];
 }
 

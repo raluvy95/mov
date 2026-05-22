@@ -1,7 +1,7 @@
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import { ILevelDB } from "../../interfaces/database";
+import type { ILevelDB } from "../../interfaces/database";
 
 async function generator(msg: Message, args: string[]) {
     const userId = args[0];

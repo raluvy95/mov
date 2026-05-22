@@ -11,19 +11,11 @@ changes to commands/database or other!
 
 # Setting up
 
-1. Just simply run `npm i .`<br>
+Requires `bun`
+
+1. Just simply run `bun i .`<br>
 2. Rename `.env.example` to `.env` and complete there<br>
-3. Run with `npm run start`
-
-# Workarounds
-
-## Migration from Jolly
-
-If you have used Jolly or Jolly-based custom bot, you can migrate level system
-to Mov.<br> We only support database migration for leveling. After running the
-bot for first time, kill it and run `npm run migrate` **with your
-database.sqlite** inside the root project. It's recommend to keep
-database.sqlite at this moment.
+3. Run with `bun start`
 
 # Contributing
 

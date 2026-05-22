@@ -1,6 +1,6 @@
 import { Message, TextChannel } from "eris";
 import { MessageCollector } from "../../lib/eris-collect";
-import { client, ClientDatabase } from "../../client/Client";
+import { client, type ClientDatabase } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { DEFAULT_SERVER_SETTINGS } from "../../constant/defaultConfig";
 

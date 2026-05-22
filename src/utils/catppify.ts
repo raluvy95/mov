@@ -14,6 +14,8 @@ async function imageProcessing(
         for (let y = 0; y < img.height; y++) {
             const chunk = ctx.getImageData(x, y, 1, 1).data;
 
+            if (chunk[0] === undefined) continue
+
             const r = chunk[0];
             const g = chunk[1];
             const b = chunk[2];
@@ -22,17 +24,16 @@ async function imageProcessing(
             if (a === 0) continue;
 
             const a_r = Math.floor(r / 4);
-            const a_g = Math.floor(g / 4);
-            const a_b = Math.floor(b / 4);
+            const a_g = Math.floor(g! / 4);
+            const a_b = Math.floor(b! / 4);
 
             const c_x = (a_r % 64) + (a_g % 8) * 64;
             const c_y = Math.floor(a_b * 8 + a_g / 8);
             const c_pixel = ctxC.getImageData(c_x, c_y, 1, 1).data;
 
             const out_pixel = [...c_pixel, a];
-            const fillStyle = `rgba(${out_pixel[0]}, ${out_pixel[1]}, ${
-                out_pixel[2]
-            }, ${(a / 255).toFixed(2)})`;
+            const fillStyle = `rgba(${out_pixel[0]}, ${out_pixel[1]}, ${out_pixel[2]
+                }, ${(a! / 255).toFixed(2)})`;
             ctx.fillStyle = fillStyle;
             ctx.fillRect(x, y, 1, 1);
         }

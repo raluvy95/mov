@@ -1,4 +1,4 @@
-import { Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage } from "eris";
+import type { Embed, EmbedAuthor, EmbedField, EmbedFooter, EmbedImage } from "eris";
 import { COLORS } from "../constant/color";
 import { EMBED } from "../constant/globalLimit";
 

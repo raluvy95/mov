@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
 import { CommandInteraction } from "eris";
-dotenv.config();
 import { client } from "./client/Client";
 import { debug } from "./utils/debug";
 import { unlinkSync } from "fs";

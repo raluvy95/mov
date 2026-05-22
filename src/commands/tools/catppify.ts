@@ -24,14 +24,14 @@ async function generator(msg: Message, args: string[]) {
             client.createMessage(msg.channel.id, "Invalid link");
             return;
         }
-        link = msg.attachments[0].url;
+        link = msg.attachments[0]!.url;
         ext = link.split(".").at(-1);
-        palette = args[0];
-        noise = args[1];
+        palette = args[0]!;
+        noise = args[1]!;
     } else {
-        link = args[0];
-        palette = args[1];
-        noise = args[2];
+        link = args[0]!;
+        palette = args[1]!;
+        noise = args[2]!;
     }
 
     if (ext?.toLowerCase() === "webp") {

@@ -1,8 +1,8 @@
-import { AdvancedMessageContent, Message } from "eris";
+import { type AdvancedMessageContent, Message } from "eris";
 import { client } from "../client/Client";
 import { MovPlugin } from "../client/Plugin";
 import { EMPTY_LEVEL } from "../constant/defaultConfig";
-import { ILevelDB, ISettingsDB } from "../interfaces/database";
+import type { ILevelDB, ISettingsDB } from "../interfaces/database";
 import { formulaXP, sendLvlUP } from "../utils/levelUtils";
 
 export default new MovPlugin("bump", {

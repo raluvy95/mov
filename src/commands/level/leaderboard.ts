@@ -2,7 +2,7 @@ import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
-import { IUserDB } from "../../interfaces/database";
+import type { IUserDB } from "../../interfaces/database";
 import { legacyLeaderboard } from "../../utils/legacy";
 
 async function generator(msg: Message, args: string[]) {
@@ -45,7 +45,7 @@ async function generator(msg: Message, args: string[]) {
             .setImage("attachment://leaderboard.png")
             .setThumb(
                 client.guilds.get(msg.guildID!)?.iconURL ||
-                    client.user.staticAvatarURL,
+                client.user.staticAvatarURL,
             )
             .setDesc(
                 `Top **${total}** most active people of all time!\nType \`${msg.prefix} ${msg.command?.label} <page>\` to the next page`,

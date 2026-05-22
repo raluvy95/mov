@@ -3,7 +3,7 @@
 import { Message, User } from "eris";
 import { client } from "../client/Client";
 import { MovEmbed } from "../client/Embed";
-import { ILevelDB, ISettingsDB } from "../interfaces/database";
+import type { ILevelDB, ISettingsDB } from "../interfaces/database";
 import { getLeaderboardRank } from "./getLeaderboardRank";
 import { formulaXP } from "./levelUtils";
 
@@ -36,14 +36,12 @@ export async function legacyRank(
         nextUpStr = "There are no ranks upcoming :(";
     } else {
         const left = nextUp.level - rank.level;
-        nextUpStr = `**${left} level${
-            left === 1 ? "" : "s"
-        }** left to reach <@&${nextUp.ID}>!`;
+        nextUpStr = `**${left} level${left === 1 ? "" : "s"
+            }** left to reach <@&${nextUp.ID}>!`;
     }
     const XPleft = reqXP - rank.xp;
-    nextUpStr += `\n**${XPleft.toLocaleString()} XP** left to reach level ${
-        rank.level + 1
-    }!`;
+    nextUpStr += `\n**${XPleft.toLocaleString()} XP** left to reach level ${rank.level + 1
+        }!`;
     const percent = Math.floor((rank.xp / reqXP) * 100);
     const e = new MovEmbed()
         .setTitle("RANKS")
@@ -75,7 +73,7 @@ export async function legacyLeaderboard(
         .setTitle("Leaderboard")
         .setThumb(
             client.guilds.get(msg.guildID!)?.iconURL ||
-                client.user.staticAvatarURL,
+            client.user.staticAvatarURL,
         );
     let result = "";
     let position = (page === 0 ? page : page - 1) * 15;
@@ -93,9 +91,8 @@ export async function legacyLeaderboard(
     }
     for (const l of levels) {
         position++;
-        result += `${award(position)} - <@${l.id}>\n**Level** ${
-            l.value.level
-        } | **Total XP** ${l.value.totalxp.toLocaleString()} | **XP** ${l.value.xp.toLocaleString()}\n`;
+        result += `${award(position)} - <@${l.id}>\n**Level** ${l.value.level
+            } | **Total XP** ${l.value.totalxp.toLocaleString()} | **XP** ${l.value.xp.toLocaleString()}\n`;
     }
     let mesg: string;
     currentRank = currentRank || (await getLeaderboardRank(msg.author.id));

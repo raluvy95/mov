@@ -14,10 +14,10 @@ export async function urlToBase64(url: string) {
 
 async function generator(msg: Message, args: string[]) {
     function isEmote(a: string[]) {
-        return a[0].startsWith("<a:") || a[0].startsWith("<:");
+        return a[0]?.startsWith("<a:") || a[0]?.startsWith("<:");
     }
     function isURL(a: string[]) {
-        return a[0].startsWith("https://") || a[0].startsWith("http://");
+        return a[0]?.startsWith("https://") || a[0]?.startsWith("http://");
     }
     if (!args[0]) {
         client.createMessage(
@@ -37,7 +37,7 @@ async function generator(msg: Message, args: string[]) {
             }`;
         client
             .createGuildEmoji(msg.guildID!, {
-                name: name,
+                name: name!,
                 image: await urlToBase64(url),
             })
             .then((e) => {

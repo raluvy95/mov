@@ -1,6 +1,6 @@
-import { Guild, Member, MemberPartial } from "eris";
+import { Guild, Member, type MemberPartial } from "eris";
 import { client } from "../client/Client";
-import { ISettingsDB } from "../interfaces/database";
+import type { ISettingsDB } from "../interfaces/database";
 import { parseName } from "./get";
 
 export async function greeting(

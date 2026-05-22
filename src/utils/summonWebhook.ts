@@ -1,4 +1,4 @@
-import { Webhook, WebhookPayload } from "eris";
+import type { Webhook, WebhookPayload } from "eris";
 import { client } from "../client/Client";
 
 export async function summonWebhook(channelId: string, opts: WebhookPayload) {

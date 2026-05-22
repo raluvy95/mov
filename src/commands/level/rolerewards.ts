@@ -2,7 +2,7 @@ import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
-import { ISettingsDB } from "../../interfaces/database";
+import type { ISettingsDB } from "../../interfaces/database";
 import { getGuildByID } from "../../utils/get";
 
 async function generator(msg: Message, args: string[]) {

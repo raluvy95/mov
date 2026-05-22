@@ -67,7 +67,7 @@ export async function getUser(
         if (m.length < 1) {
             return undefined;
         } else {
-            return m[0].user;
+            return m[0]!.user;
         }
     }
 

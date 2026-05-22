@@ -1,4 +1,4 @@
-import { CommandOptions, CommandGenerator } from "eris";
+import type { CommandOptions, CommandGenerator } from "eris";
 import { client } from "./Client";
 
 export class MovCommand {

@@ -3,7 +3,7 @@ import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
 import { DEFAULT_USER_SETTINGS } from "../../constant/defaultConfig";
-import { IUserDB } from "../../interfaces/database";
+import type { IUserDB } from "../../interfaces/database";
 
 async function generator(msg: Message, args: string[]) {
     let uSettings = await client.database.user.get<IUserDB>(msg.author.id);
@@ -20,7 +20,7 @@ async function generator(msg: Message, args: string[]) {
             client.createMessage(msg.channel.id, "Missing value");
             return;
         }
-        if (!Object.keys(uSettings).includes(type)) {
+        if (!Object.keys(uSettings).includes(type!)) {
             client.createMessage(msg.channel.id, `Invalid type: ${type}`);
             return;
         }

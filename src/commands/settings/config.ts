@@ -2,8 +2,8 @@ import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
-import { ISettingsDB } from "../../interfaces/database";
-import { Modules } from "../../interfaces/module";
+import type { ISettingsDB } from "../../interfaces/database";
+import type { Modules } from "../../interfaces/module";
 import { dateToString } from "../../utils/dateToString";
 import { getMemberByID } from "../../utils/get";
 
@@ -74,7 +74,7 @@ async function generator(msg: Message, args: string[]) {
                 if (
                     !Array.isArray(
                         (settings.modules[modulee as keyof Modules] as any)[
-                            key
+                        key
                         ],
                     )
                 ) {
@@ -105,7 +105,7 @@ async function generator(msg: Message, args: string[]) {
                 if (
                     !Array.isArray(
                         (settings.modules[modulee as keyof Modules] as any)[
-                            key
+                        key
                         ],
                     )
                 ) {
@@ -168,8 +168,7 @@ async function generator(msg: Message, args: string[]) {
         e.setTitle("Bot Settings").setDesc(
             `The prefix is \`${settings.prefix}\`. Added on ${dateToString(
                 new Date(botAsMember!.joinedAt!),
-            )}\n\nView the detailed module using \`${
-                settings.prefix
+            )}\n\nView the detailed module using \`${settings.prefix
             }config <module>\``,
         );
         for (const [k, v] of Object.entries(settings.modules)) {

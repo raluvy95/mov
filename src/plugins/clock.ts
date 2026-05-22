@@ -1,6 +1,6 @@
 import { client } from "../client/Client";
 import { MovPlugin } from "../client/Plugin";
-import { ISettingsDB } from "../interfaces/database";
+import type { ISettingsDB } from "../interfaces/database";
 import { dateToString } from "../utils/dateToString";
 
 export default new MovPlugin("clock", {

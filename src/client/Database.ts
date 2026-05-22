@@ -1,12 +1,7 @@
-import { DEFAULT_SERVER_SETTINGS } from "../constant/defaultConfig";
-import { ILevelDB } from "../interfaces/database";
+import { DEFAULT_SERVER_SETTINGS, DEFAULT_DB_FILE } from "../constant/defaultConfig";
+import type { ILevelDB } from "../interfaces/database";
+import { Database } from "bun:sqlite";
 
-declare function require(id: string): any;
-
-interface IDatabaseOptions {
-    filePath?: string;
-    cacheValues?: boolean;
-}
 
 interface IRow<T = unknown> {
     ID: string;
@@ -20,41 +15,6 @@ interface IStatementResult<T = unknown> {
     run(...params: unknown[]): unknown;
 }
 
-interface ISQLiteDatabase {
-    prepare<T = unknown>(query: string): IStatementResult<T>;
-    exec?(query: string): unknown;
-    pragma?(query: string): unknown;
-}
-
-type DatabaseCtor = new (
-    filePath: string,
-    options?: Record<string, unknown>,
-) => ISQLiteDatabase;
-
-const DEFAULT_DB_FILE = ".MOV.sqlite";
-
-let sharedDatabase: ISQLiteDatabase | null = null;
-
-function getDatabaseConstructor(): DatabaseCtor {
-    if (typeof (globalThis as { Bun?: unknown }).Bun !== "undefined") {
-        const bunSqlite = require("bun:sqlite") as {
-            Database: DatabaseCtor;
-        };
-        return bunSqlite.Database;
-    }
-
-    return require("better-sqlite3") as DatabaseCtor;
-}
-
-function getDatabase(filePath: string): ISQLiteDatabase {
-    if (sharedDatabase) return sharedDatabase;
-
-    const Database = getDatabaseConstructor();
-    sharedDatabase = new Database(filePath);
-    sharedDatabase.pragma?.("journal_mode = WAL");
-    sharedDatabase.pragma?.("synchronous = NORMAL");
-    return sharedDatabase;
-}
 
 function parsePath(key: string) {
     const parts = key.split(".");
@@ -97,6 +57,7 @@ function setNestedValue(source: unknown, path: string[], value: unknown) {
         return cloneValue(value);
     }
 
+    const lastKey = path[path.length - 1]; // extracted
     const root = isObject(source) ? cloneValue(source) : {};
     let cursor = root as Record<string, unknown>;
 
@@ -108,7 +69,7 @@ function setNestedValue(source: unknown, path: string[], value: unknown) {
         cursor = cursor[part] as Record<string, unknown>;
     }
 
-    cursor[path[path.length - 1]] = cloneValue(value);
+    cursor[lastKey!] = cloneValue(value); // clean index
     return root;
 }
 
@@ -116,6 +77,7 @@ function deleteNestedValue(source: unknown, path: string[]) {
     if (!isObject(source)) return source;
     if (path.length === 0) return undefined;
 
+    const lastKey = path[path.length - 1]; // extracted
     const root = cloneValue(source) as Record<string, unknown>;
     let cursor: Record<string, unknown> = root;
 
@@ -127,23 +89,24 @@ function deleteNestedValue(source: unknown, path: string[]) {
         cursor = next;
     }
 
-    delete cursor[path[path.length - 1]];
+    delete cursor[lastKey!]; // clean delete
     return root;
 }
 
 export class MovDB {
-    protected database: ISQLiteDatabase;
+    protected database: Database;
     private table: string;
     private cacheValues: boolean;
     private valueCache = new Map<string, unknown>();
 
-    constructor(table: string, opt?: IDatabaseOptions) {
+    constructor(table: string, cacheValues?: boolean) {
         this.table = table;
-        this.cacheValues = opt?.cacheValues || false;
-        this.database = getDatabase(opt?.filePath || DEFAULT_DB_FILE);
-        this.database.exec?.(
+        this.cacheValues = cacheValues || false;
+        this.database = new Database(DEFAULT_DB_FILE);
+        this.database.run(
             `CREATE TABLE IF NOT EXISTS ${this.table} (ID TEXT PRIMARY KEY, json TEXT NOT NULL)`,
         );
+        this.database.run("PRAGMA journal_mode = WAL;");
     }
 
     protected get tableName() {
@@ -170,7 +133,7 @@ export class MovDB {
         if (cached !== undefined) return cached;
 
         const row = this.database
-            .prepare<{ json: string | null }>(
+            .prepare<{ json: string | null }, [string]>(
                 `SELECT json FROM ${this.table} WHERE ID = ?`,
             )
             .get(id);
@@ -260,7 +223,7 @@ export class MovDB {
 
     async all<T = unknown>() {
         const rows = this.database
-            .prepare<Pick<IRow<T>, "ID" | "json">>(
+            .prepare<Pick<IRow<T>, "ID" | "json">, []>(
                 `SELECT ID, json FROM ${this.table}`,
             )
             .all();
@@ -273,7 +236,7 @@ export class MovDB {
 
     async count() {
         const row = this.database
-            .prepare<{ count: number }>(
+            .prepare<{ count: number }, []>(
                 `SELECT COUNT(*) as count FROM ${this.table}`,
             )
             .get();
@@ -285,9 +248,7 @@ export class SettingsDB extends MovDB {
     private guildID: string;
 
     constructor(guildID: string) {
-        super("serversettings", {
-            cacheValues: true,
-        });
+        super("serversettings", true);
         this.guildID = guildID;
         this.init();
     }
@@ -314,7 +275,7 @@ export class LevelDB extends MovDB {
     async topByTotalXP(limit: number, offset = 0) {
         try {
             const rows = this.database
-                .prepare<{ ID: string; json: string }>(
+                .prepare<{ ID: string; json: string }, [number, number]>(
                     `SELECT ID, json
                      FROM ${this.tableName}
                      ORDER BY CAST(json_extract(json, '$.totalxp') AS INTEGER) DESC, ID ASC
@@ -338,7 +299,7 @@ export class LevelDB extends MovDB {
 
         try {
             const row = this.database
-                .prepare<{ rank: number }>(
+                .prepare<{ rank: number }, [number]>(
                     `SELECT COUNT(*) + 1 as rank
                      FROM ${this.tableName}
                      WHERE CAST(json_extract(json, '$.totalxp') AS INTEGER) > ?`,
@@ -368,9 +329,7 @@ export class LevelDB extends MovDB {
 
 export class UserDB extends MovDB {
     constructor() {
-        super("usersettings", {
-            cacheValues: true,
-        });
+        super("usersettings", true);
     }
 }
 

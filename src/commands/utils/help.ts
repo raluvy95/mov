@@ -8,7 +8,7 @@ async function generator(msg: Message, args: string[]) {
     const emb = new MovEmbed();
 
     if (args.length > 0) {
-        const command = client.resolveCommand(args[0]);
+        const command = client.resolveCommand(args[0]!);
         if (command !== undefined) {
             function bool(bo: boolean) {
                 return bo ? "Yes" : "No";
@@ -41,8 +41,8 @@ async function generator(msg: Message, args: string[]) {
                             command.aliases.length < 1
                                 ? "No aliases"
                                 : command.aliases
-                                      .map((m) => `\`${m}\``)
-                                      .join(", "),
+                                    .map((m) => `\`${m}\``)
+                                    .join(", "),
                         inline: true,
                     },
                     {
@@ -83,11 +83,11 @@ async function generator(msg: Message, args: string[]) {
         `Help command - ${Object.keys(client.commands).length} commands`,
     ).setThumb(client.user.avatarURL);
     let registeredCommand: string[] = [];
-    const modules = readdirSync("./build/commands");
+    const modules = readdirSync("./src/commands");
     for (const mod of modules) {
-        const commands = readdirSync(`./build/commands/${mod}`);
+        const commands = readdirSync(`./src/commands/${mod}`);
         for (const cmd of commands) {
-            const command = cmd.split(".")[0];
+            const command = cmd.split(".")[0]!;
             if (client.commands[command] !== undefined) {
                 const c = client.commands[command];
                 if (c.hidden) continue;

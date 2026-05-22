@@ -3,7 +3,7 @@ import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
 import { DEFAULT_USER_SETTINGS } from "../../constant/defaultConfig";
-import { IUserDB } from "../../interfaces/database";
+import type { IUserDB } from "../../interfaces/database";
 
 async function generator(msg: Message, args: string[]) {
     let uSettings = await client.database.user.get<IUserDB>(msg.author.id);
@@ -28,8 +28,7 @@ async function generator(msg: Message, args: string[]) {
         try {
             const e = new MovEmbed()
                 .setTitle(
-                    `User aliases [${
-                        uSettings.aliases.flatMap((m) => m.alias).length
+                    `User aliases [${uSettings.aliases.flatMap((m) => m.alias).length
                     }]`,
                 )
                 .setDesc(
@@ -105,7 +104,7 @@ async function generator(msg: Message, args: string[]) {
         client.createMessage(msg.channel.id, "Missing alias name argument");
         return;
     }
-    switch (action.toLowerCase()) {
+    switch (action?.toLowerCase()) {
         case "add":
         case "create": {
             if (allCommandsNameAndAliases.includes(name)) {
@@ -127,8 +126,8 @@ async function generator(msg: Message, args: string[]) {
                     msg.channel.id,
                     "Cannot create alias longer than 150 characters",
                 );
-                    return;
-                }
+                return;
+            }
             const cmd = resolveTargetCommand(target);
             if (!cmd) {
                 client.createMessage(

@@ -1,4 +1,4 @@
-import { Modules } from "../../interfaces/module";
+import type { Modules } from "../../interfaces/module";
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";

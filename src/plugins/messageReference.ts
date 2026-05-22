@@ -1,8 +1,8 @@
-import { FileContent, MessageContent } from "eris";
+import type { FileContent, MessageContent } from "eris";
 import { client } from "../client/Client";
 import { MovEmbed } from "../client/Embed";
 import { MovPlugin } from "../client/Plugin";
-import { ISettingsDB } from "../interfaces/database";
+import type { ISettingsDB } from "../interfaces/database";
 
 export default new MovPlugin("messageReference", {
     event: "messageCreate",
@@ -21,7 +21,7 @@ export default new MovPlugin("messageReference", {
             try {
                 let result: MessageContent = {};
                 let file: FileContent[] = [];
-                const msgRef = await client.getMessage(channelId, messageId);
+                const msgRef = await client.getMessage(channelId!, messageId!);
                 if ("nsfw" in msgRef.channel) {
                     if (msgRef.channel.nsfw) return;
                     if (

@@ -7,7 +7,7 @@ import {
 } from "canvas";
 import { flavors } from "@catppuccin/palette";
 import { Message, User } from "eris";
-import { ILevelDB, IUserDB } from "../interfaces/database";
+import type { ILevelDB, IUserDB } from "../interfaces/database";
 import { client } from "../client/Client";
 import { getLeaderboardRank } from "./getLeaderboardRank";
 import { getUserByID, parseName } from "./get";

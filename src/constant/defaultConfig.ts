@@ -1,5 +1,5 @@
 import { flavors } from "@catppuccin/palette";
-import { ISettingsDB, IUserDB } from "../interfaces/database";
+import type { ISettingsDB, IUserDB } from "../interfaces/database";
 
 export const DEFAULT_SERVER_SETTINGS: ISettingsDB = {
     prefix: "$",
@@ -78,3 +78,5 @@ export const EMPTY_LEVEL = {
     level: 0,
     totalxp: 0,
 };
+
+export const DEFAULT_DB_FILE = ".MOV.sqlite"

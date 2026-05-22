@@ -1,4 +1,4 @@
-import { Modules } from "./module";
+import type { Modules } from "./module";
 
 export interface ISettingsDB {
     /* Bot's prefix, not server smh */

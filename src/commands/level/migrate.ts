@@ -1,7 +1,7 @@
 import { Message, TextChannel } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import { ILevelDB } from "../../interfaces/database";
+import type { ILevelDB } from "../../interfaces/database";
 import { MessageCollector } from "../../lib/eris-collect";
 
 async function generator(msg: Message, args: string[]) {
@@ -42,7 +42,7 @@ async function generator(msg: Message, args: string[]) {
     });
 
     function proceed() {
-        client.database.level.set<ILevelDB>(anotherUserId, {
+        client.database.level.set<ILevelDB>(anotherUserId!, {
             xp: Number(srcUserId?.xp),
             level: Number(srcUserId?.level),
             totalxp: Number(srcUserId?.totalxp),

@@ -1,6 +1,6 @@
 import { Message } from "eris";
 import { client } from "../client/Client";
-import { ILevelDB, ISettingsDB, IUserDB } from "../interfaces/database";
+import type { ILevelDB, ISettingsDB, IUserDB } from "../interfaces/database";
 import { getMemberByID, parseName } from "./get";
 import { probability } from "./math";
 

@@ -1,10 +1,10 @@
-import { CommandClient, GeneratorFunctionReturn, Message, TextableChannel } from 'eris';
+import { CommandClient, type GeneratorFunctionReturn, Message, type TextableChannel } from 'eris';
 import { CmdStatDB, LevelDB, MovDB, SettingsDB, UserDB } from './Database';
 import { readdirSync } from 'fs';
 import { MovCommand } from './Command';
 import { MovPlugin } from './Plugin';
 import { Collection } from '@discordjs/collection';
-import { ISettingsDB, IUserDB } from '../interfaces/database';
+import type { ISettingsDB, IUserDB } from '../interfaces/database';
 import { parseName } from '../utils/get';
 
 export interface ClientDatabase {
@@ -227,9 +227,9 @@ class Mov extends CommandClient {
 		if (!process.env.SERVER_ID) throw new Error("The env SERVER_ID is undefined");
 
 		// Command handler
-		const modules = readdirSync("./build/commands");
+		const modules = readdirSync("./src/commands");
 		for (const mod of modules) {
-			const commands = readdirSync(`./build/commands/${mod}`).filter(m => !m.startsWith("."));
+			const commands = readdirSync(`./src/commands/${mod}`).filter(m => !m.startsWith("."));
 			for (const cmd of commands) {
 				try {
 					const command: { default: MovCommand } = await import(`../commands/${mod}/${cmd}`);
@@ -241,7 +241,7 @@ class Mov extends CommandClient {
 		}
 
 		// Event (also called as Plugin) handler
-		const plugins = readdirSync("./build/plugins");
+		const plugins = readdirSync("./src/plugins");
 		this.on("messageCreate", this.onMessageCreate);
 		this.on("messageUpdate", (msg, oldMsg) => {
 			// rome-ignore lint/suspicious/noDoubleEquals: <explanation>
