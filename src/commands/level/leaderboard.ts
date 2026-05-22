@@ -2,6 +2,7 @@ import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
+import { ILevelDB } from "../../interfaces/database";
 import { IUserDB } from "../../interfaces/database";
 import { leaderboardCanvas } from "../../utils/canvas";
 import { legacyLeaderboard } from "../../utils/legacy";
@@ -17,7 +18,7 @@ async function generator(msg: Message, args: string[]) {
 
     let page = Math.abs(Number(args[0]));
 
-    const all = (await client.database.level.all()).sort((a, b) => {
+    const all = (await client.database.level.all<ILevelDB>()).sort((a, b) => {
         return b.value.totalxp - a.value.totalxp;
     });
 

@@ -2,7 +2,7 @@ import { client } from "../client/Client";
 import { ILevelDB } from "../interfaces/database";
 
 export async function getLeaderboardRank(id: string) {
-    const all = (await client.database.level.all()).sort((a, b) => {
+    const all = (await client.database.level.all<ILevelDB>()).sort((a, b) => {
         return b.value.totalxp - a.value.totalxp;
     });
     const result: { id: string; rank: number; data: ILevelDB }[] = [];
