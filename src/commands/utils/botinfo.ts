@@ -45,6 +45,8 @@ async function generator(msg: Message, args: string[]) {
             '--pretty=format:"%h"',
             "-1",
         ]);
+        // strip the literal double-quotes and any trailing line breaks
+        lastGitCommit = lastGitCommit.replace(/"/g, '').trim();
     } catch {
         lastGitCommit = "No version was found";
     }
@@ -75,32 +77,25 @@ Heap Used: ${bytesToMB(memoryUsage.heapUsed)}`,
             .setFooter("Powered by Mov", msg.author.avatarURL);
         await client.createMessage(msg.channel.id, e.build());
     } else if (args[0].startsWith("c")) {
-        let ascii = `{1}M     {2}OOOOO{1}     M    
-{1}MM  {2}OO     OO{1}  MM    
-{1}MM{2}OO         OO{1}MM    
-{1}M{2}OO{3}VV       VV{2}OO{1}M    
-{2}OO{1}MM{3}VV     VV{1}MM{2}OO    
-{1}M{2}OO{1}MM{3}VV   VV{1}MM{2}OO{1}M    
-{1}MM{2}OO{1}MM{3}VV VV{1}MM{2}OO{1}MM    
+        let result = "```ansi\n" +
+            `{1}M     {2}OOOOO{1}     M     \x1b[1;4m\x1b[2;37m${msg.author.username}\x1b[0;0m\x1b[0m
+{1}MM  {2}OO     OO{1}  MM     {3}Version:{0} ${lastGitCommit}
+{1}MM{2}OO         OO{1}MM     {3}Library:{0} Eris v${Eris.VERSION}
+{1}M{2}OO{3}VV       VV{2}OO{1}M     {3}Runtime:{0} Node.js ${process.version}
+{2}OO{1}MM{3}VV     VV{1}MM{2}OO     {3}Language:{0} TypeScript v${typescript_version}
+{1}M{2}OO{1}MM{3}VV   VV{1}MM{2}OO{1}M     {3}Uptime:{0} ${uptime()}
+{1}MM{2}OO{1}MM{3}VV VV{1}MM{2}OO{1}MM     {3}Memory:{0} ${bytesToMB(memoryUsage.rss)}
 {1}MMM {2}OO{1}M{3}VVV{1}M{2}OO {1}MMM    
 {1}MMM   {2}OOOOO   {1}MMM    
-{1}MMM           MMM`
-        let result: string = '';
-        const lines = ascii.split(/\n/)
-        result += "```ansi\n"
-        result += lines[0] + ` \x1b[1;4m\x1b[2;37m${msg.author.username}\x1b[0;0m\x1b[0m\n`
-        result += lines[1] + `{3}Version:{0} ${lastGitCommit}\n`
-        result += lines[2] + `{3}Library:{0} Eris v${Eris.VERSION}\n`
-        result += lines[3] + `{3}Runtime:{0} Node.js ${process.version}\n`
-        result += lines[4] + `{3}Language:{0} TypeScript v${typescript_version}\n`
-        result += lines[5] + `{3}Uptime:{0} ${uptime()}\n`
-        result += lines[6] + `{3}Memory:{0} ${bytesToMB(memoryUsage.rss)}\n`
-        result += lines[7] + `\n` // this adds the block spacing slot safely
-        result += lines[8] + ` \x1b[2;40m\x1b[2;30m███\x1b[0m\x1b[2;40m\x1b[0m\x1b[2;31m\x1b[0m\x1b[2;30m███\x1b[0m\x1b[2;31m███\x1b[0m\x1b[2;32m███\x1b[0m\x1b[2;33m███\x1b[0m\x1b[2;34m███\x1b[0m\x1b[2;35m███\x1b[0m\x1b[2;36m███\x1b[0m\x1b[2;37m███\x1b[0m\n`
-        result += lines[9] + "\n"
-        result += "```"
+{1}MMM           MMM      \x1b[2;40m\x1b[2;30m███\x1b[0m\x1b[2;40m\x1b[0m\x1b[2;31m\x1b[0m\x1b[2;30m███\x1b[0m\x1b[2;31m███\x1b[0m\x1b[2;32m███\x1b[0m\x1b[2;33m███\x1b[0m\x1b[2;34m███\x1b[0m\x1b[2;35m███\x1b[0m\x1b[2;36m███\x1b[0m\x1b[2;37m███\x1b[0m\n` +
+            "```";
 
-        result = result.replaceAll("{0}", "\x1b[0;0m").replaceAll("{1}", "\x1b[2;30m").replaceAll("{2}", "\x1b[2;34m").replaceAll("{3}", "\x1b[2;35m")
+        result = result
+            .replaceAll("{0}", "\x1b[0;0m")
+            .replaceAll("{1}", "\x1b[2;30m")
+            .replaceAll("{2}", "\x1b[2;34m")
+            .replaceAll("{3}", "\x1b[2;35m");
+
         await client.createMessage(msg.channel.id, result);
     }
 }
