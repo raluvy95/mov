@@ -1,5 +1,5 @@
-import Collector, { CollectorOptions } from './Collector'
-import { ButtonComponentInteraction, SelectMenuComponentInteraction } from '../types'
+import Collector, { type CollectorOptions } from './Collector'
+import type { ButtonComponentInteraction, SelectMenuComponentInteraction } from '../types'
 import * as Eris from 'eris'
 
 export type ComponentTypes =
@@ -54,7 +54,7 @@ export class InteractionCollector<K extends InteractionTypes = InteractionTypes,
      * @param client The Eris client to apply the collector on.
      * @param options The collector options.
      */
-    public constructor(private client: Eris.Client, public options: InteractionCollectorOptionsWithGenerics<K, T> = {}) {
+    public constructor(private client: Eris.Client, public override options: InteractionCollectorOptionsWithGenerics<K, T> = {}) {
         super(options)
 
         this.messageID = options.message?.id ?? null
@@ -126,7 +126,7 @@ export class InteractionCollector<K extends InteractionTypes = InteractionTypes,
         }
     }
 
-    protected collect(interaction: Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction): Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction | null {
+    protected override collect(interaction: Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction): Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction | null {
         if (this.interactionType && interaction.type !== this.interactionType) return null
         if (interaction.type === Eris.Constants.InteractionTypes.MESSAGE_COMPONENT) {
             if (this.componentType && interaction.data.component_type !== this.componentType) return null
@@ -139,7 +139,7 @@ export class InteractionCollector<K extends InteractionTypes = InteractionTypes,
         return interaction
     }
 
-    protected dispose(interaction: Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction): Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction | null {
+    protected override dispose(interaction: Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction): Eris.AutocompleteInteraction | Eris.CommandInteraction | Eris.ComponentInteraction | null {
         if (this.interactionType && interaction.type !== this.interactionType) return null
         if (interaction.type === Eris.Constants.InteractionTypes.MESSAGE_COMPONENT) {
             if (this.componentType && interaction.data.component_type !== this.componentType) return null

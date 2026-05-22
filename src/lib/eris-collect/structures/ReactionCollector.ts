@@ -1,4 +1,4 @@
-import Collector, { CollectorOptions } from './Collector'
+import Collector, { type CollectorOptions } from './Collector'
 import * as Eris from 'eris'
 
 export interface CollectedReaction<T extends Eris.Message> {
@@ -18,7 +18,7 @@ export class ReactionCollector<T extends Eris.Message> extends Collector<Collect
      * @param message The message to apply collector.
      * @param options The collector options.
      */
-    public constructor(private client: Eris.Client, private message: T, public options: CollectorOptions<CollectedReaction<T>> = {}) {
+    public constructor(private client: Eris.Client, private message: T, public override options: CollectorOptions<CollectedReaction<T>> = {}) {
         super(options)
 
         const bulkDeleteListener = (messages: Eris.PossiblyUncachedMessage[]): void => {
@@ -78,7 +78,7 @@ export class ReactionCollector<T extends Eris.Message> extends Collector<Collect
         }
     }
 
-    protected collect(message: T, reaction: Eris.PartialEmoji, user: Eris.Member | Eris.Uncached): CollectedReaction<T> | null {
+    protected override collect(message: T, reaction: Eris.PartialEmoji, user: Eris.Member | Eris.Uncached): CollectedReaction<T> | null {
         if (message.id !== this.message.id) return null
 
         return {
@@ -88,7 +88,7 @@ export class ReactionCollector<T extends Eris.Message> extends Collector<Collect
         }
     }
 
-    protected dispose(message: T, reaction: Eris.PartialEmoji, userId: string): CollectedReaction<T> | null {
+    protected override dispose(message: T, reaction: Eris.PartialEmoji, userId: string): CollectedReaction<T> | null {
         if (message.id !== this.message.id) return null
 
         return {

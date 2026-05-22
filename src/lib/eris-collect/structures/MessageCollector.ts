@@ -1,4 +1,4 @@
-import Collector, { CollectorOptions } from './Collector'
+import Collector, { type CollectorOptions } from './Collector'
 import * as Eris from 'eris'
 
 export type MessageCollectorEndReasons = 'guildDelete' | 'channelDelete' | 'threadDelete';
@@ -9,7 +9,7 @@ export class MessageCollector<T extends Eris.TextChannel> extends Collector<Eris
      * @param channel The channel to collect messages
      * @param options The collector options.
      */
-    public constructor(private client: Eris.Client, private channel: T, public options: CollectorOptions<Eris.Message<T>> = {}) {
+    public constructor(private client: Eris.Client, private channel: T, public override options: CollectorOptions<Eris.Message<T>> = {}) {
         super(options)
 
         const bulkDeleteListener = (messages: Eris.PossiblyUncachedMessage[]): void => {
@@ -57,13 +57,13 @@ export class MessageCollector<T extends Eris.TextChannel> extends Collector<Eris
         }
     }
 
-    protected collect(message: Eris.Message<T>): Eris.Message<T> | null {
+    protected override collect(message: Eris.Message<T>): Eris.Message<T> | null {
         if (message.channel.id !== this.channel.id) return null
 
         return message
     }
 
-    protected dispose(message: Eris.PossiblyUncachedMessage): Eris.PossiblyUncachedMessage | null {
+    protected override dispose(message: Eris.PossiblyUncachedMessage): Eris.PossiblyUncachedMessage | null {
         if (message.channel?.id !== this.channel.id) return null
 
         return message
