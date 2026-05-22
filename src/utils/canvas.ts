@@ -87,9 +87,24 @@ async function genAvatar(
 ): Promise<void> {
     const { colorAccent } = await getUserPref(user);
 
-    if (round) {
-        const img = await loadImage(user.dynamicAvatarURL("png"));
+    let img;
+    try {
+        img = await loadImage(user.dynamicAvatarURL("png"));
+    } catch {
+        // failed to load avatar
+        ctx.fillStyle = colorAccent;
+        if (round) {
+            ctx.beginPath();
+            ctx.arc(x + 40, y + 40, 40, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        } else {
+            ctx.fillRect(x, y, 80, 80);
+        }
+        return;
+    }
 
+    if (round) {
         const arcX = x + 40;
         const arcY = y + 40;
 
@@ -109,8 +124,6 @@ async function genAvatar(
         ctx.closePath();
         ctx.restore();
     } else {
-        const img = await loadImage(user.dynamicAvatarURL("png"));
-
         ctx.strokeStyle = colorAccent;
         ctx.lineWidth = 4;
         ctx.drawImage(img, x, y, 80, 80);
@@ -124,21 +137,30 @@ async function generateBg(
     user: User,
 ): Promise<void> {
     const { customBackgroundURL, colorAccent } = await getUserPref(user);
-    if (!user.dynamicBannerURL("png") && customBackgroundURL === "color") {
+    if (customBackgroundURL === "color") {
+        const banner = user.dynamicBannerURL("png");
+        if (banner) {
+            try {
+                const img = await loadImage(banner);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                return;
+            } catch {
+                // fall back to color
+            }
+        }
         ctx.fillStyle = colorAccent;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-    } else {
-        const url =
-            (customBackgroundURL !== "color"
-                ? customBackgroundURL
-                : colorAccent) || user.dynamicBannerURL("png")!;
+    } else if (customBackgroundURL) {
         try {
-            const img = await loadImage(url);
+            const img = await loadImage(customBackgroundURL);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         } catch {
             ctx.fillStyle = colorAccent;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
+    } else {
+        ctx.fillStyle = colorAccent;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 }
 
@@ -236,14 +258,16 @@ export async function genXPRank(user: User, level: ILevelDB): Promise<Buffer> {
     );
 
     const leaderboardRank = await getLeaderboardRank(user.id);
-    ctx.fillStyle = flavors.mocha.colors.overlay0.hex;
-    ctx.font = "20px 'RobotoB'";
-    rankTxt(
-        ctx,
-        leaderboardRank.rank,
-        canvasContent.w / 2 - t.width / 2 + 35,
-        canvas.height / 2 - 30,
-    );
+    if (leaderboardRank) {
+        ctx.fillStyle = flavors.mocha.colors.overlay0.hex;
+        ctx.font = "20px 'RobotoB'";
+        rankTxt(
+            ctx,
+            leaderboardRank.rank,
+            canvasContent.w / 2 - t.width / 2 + 35,
+            canvas.height / 2 - 30,
+        );
+    }
 
     return canvas.toBuffer();
 }
@@ -294,6 +318,7 @@ export async function leaderboardCanvas(
     levels: { id: string; value: ILevelDB }[],
     msg: Message<any>,
     page: number,
+    currentRank?: { id: string; rank: number; data: ILevelDB },
 ) {
     const canvas = createCanvas(550, 35 * levels.length + 60);
     const ctx = canvas.getContext("2d");
@@ -320,14 +345,19 @@ export async function leaderboardCanvas(
     ctx.fill();
     ctx.closePath();
 
-    const yourRank = await getLeaderboardRank(msg.author.id);
+    const yourRank = currentRank || (await getLeaderboardRank(msg.author.id));
     const positionI = 35 * index + 35;
 
-    colorRank(ctx, yourRank.rank);
-    ctx.strokeStyle = flavors.mocha.colors.crust.hex;
-    ctx.lineWidth = 3;
-    ctx.fillText(`#${yourRank.rank}`, 15, positionI);
-    ctx.stroke();
+    if (yourRank) {
+        colorRank(ctx, yourRank.rank);
+        ctx.strokeStyle = flavors.mocha.colors.crust.hex;
+        ctx.lineWidth = 3;
+        ctx.fillText(`#${yourRank.rank}`, 15, positionI);
+        ctx.stroke();
+    } else {
+        ctx.fillStyle = flavors.mocha.colors.crust.hex;
+        ctx.fillText("N/A", 15, positionI);
+    }
 
     ctx.globalCompositeOperation = "difference";
     ctx.fillStyle = "#ffffff";
@@ -347,8 +377,9 @@ export async function leaderboardCanvas(
 
     ctx.fillStyle = "#ffffff";
     ctx.fillText(
-        `Level ${yourRank.data.level
-        } | Total XP: ${yourRank.data.totalxp.toLocaleString()}`,
+        yourRank
+            ? `Level ${yourRank.data.level} | Total XP: ${yourRank.data.totalxp.toLocaleString()}`
+            : "You are not ranked yet",
         280,
         positionI,
     );

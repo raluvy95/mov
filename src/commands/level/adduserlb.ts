@@ -30,7 +30,7 @@ async function generator(msg: Message, args: string[]) {
     client.database.level.set<ILevelDB>(userId, {
         xp: Number(xp),
         level: Number(level),
-        totalxp: Number(xp),
+        totalxp: Number(totalXP),
     });
     client.createMessage(
         msg.channel.id,
@@ -48,7 +48,7 @@ class AddUserLb extends MovCommand {
                 "adduserxp",
                 "setuserleaderboard",
             ],
-            usage: "<user id> <xp> <level>",
+            usage: "<user id> <xp> <level> <totalXP>",
             requirements: {
                 permissions: {
                     administrator: true,

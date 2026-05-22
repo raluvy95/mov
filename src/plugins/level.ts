@@ -7,35 +7,37 @@ import { formulaXP, sendLvlUP } from "../utils/levelUtils";
 
 async function run(msg: Message<any>) {
     if (msg.author.bot) return;
+
+    // Claim the XP slot before any awaits so duplicate/concurrent events do not
+    // process the same user twice during the cooldown window.
+    const user = msg.author.id;
+    const now = Date.now();
+    const cooldown = 60 * 1000;
+    const lastXPAt = client.cooldownLevel.get(user);
+    if (lastXPAt !== undefined && now < lastXPAt + cooldown) return;
+    client.cooldownLevel.set(user, now);
+
     const lvl = await client.database.settings.get<ISettingsDB>(
         process.env.SERVER_ID!,
     )!;
-    if (!lvl?.modules.level.enable) return;
+    if (!lvl?.modules.level.enable) {
+        client.cooldownLevel.delete(user);
+        return;
+    }
 
-    if (lvl.modules.level.ignoreChannel?.includes(msg.channel.id)) return;
+    if (lvl.modules.level.ignoreChannel?.includes(msg.channel.id)) {
+        client.cooldownLevel.delete(user);
+        return;
+    }
 
-    let level = await client.database.level.get<ILevelDB>(msg.author.id);
+    let level = await client.database.level.get<ILevelDB>(user);
 
     if (!level) {
         level = await client.database.level.set<ILevelDB>(
-            msg.author.id,
+            user,
             EMPTY_LEVEL,
         );
     }
-
-    // Level cooldown hander - 1 min
-    if (!client.cooldownLevel.has(msg.author.id)) {
-        client.cooldownLevel.set(msg.author.id, 0);
-    }
-    const now = Date.now();
-    const ca = 60 * 1000;
-    const user = msg.author.id;
-    const et = (client.cooldownLevel.get(user) as number) + ca;
-    if (now < et) return;
-    client.cooldownLevel.set(user, now);
-    setTimeout(() => {
-        client.cooldownLevel.delete(user);
-    }, ca);
 
     const maxXP = lvl.modules.level.maxXP ?? 25;
     const minXP = lvl.modules.level.minXP ?? 15;
@@ -50,7 +52,7 @@ async function run(msg: Message<any>) {
         level.xp = 0;
         await sendLvlUP(user, msg, level);
     }
-    await client.database.level.set<ILevelDB>(msg.author.id, level);
+    await client.database.level.set<ILevelDB>(user, level);
 }
 
 export default new MovPlugin("level", {

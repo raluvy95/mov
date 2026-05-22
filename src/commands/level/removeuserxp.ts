@@ -36,8 +36,8 @@ async function generator(msg: Message, args: string[]) {
         `Are you sure you want to remove **${parseName(user)}**'s level? [Type 'yes' or 'y' to confirm]`,
     );
     collector.on("end", (c) => {
-        const msg = c[0];
-        if (["yes", "y"].includes(msg.content)) {
+        const response = c[0];
+        if (response && ["yes", "y"].includes(response.content.toLowerCase())) {
             client.database.level.delete(user.id);
             client.createMessage(msg.channel.id, "Removed!");
         } else {

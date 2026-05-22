@@ -8,9 +8,9 @@ import { ISettingsDB, IUserDB } from '../interfaces/database';
 import { parseName } from '../utils/get';
 
 export interface ClientDatabase {
-	level: MovDB
+	level: LevelDB
 	settings: SettingsDB
-	user: MovDB,
+	user: UserDB,
 	cmdStat: MovDB,
 	cache: MovDB
 }
@@ -131,28 +131,56 @@ class Mov extends CommandClient {
 		}
 	}
 
-	private async checkPrefixMod(msg: Message<any>) {
-		let prefixes = this.commandOptions.prefix;
-		const userPref = (await this.database.user.get<IUserDB>(msg.author.id))?.prefix.toLowerCase();
-		const server = (await this.database.settings.get<ISettingsDB>(msg.guildID!))?.prefix.toLowerCase();
+	private resolvePrefix(
+		msg: Message<any>,
+		userConfig?: IUserDB | null,
+		serverConfig?: ISettingsDB | null,
+	) {
+		const normalizedContent = msg.content.replace(/<@!/g, "<@").toLowerCase();
+		const candidates = new Set<string>();
 
-		if (userPref || server) {
-			prefixes = userPref || server;
-		} else if (msg.mentions.includes(this.user)) {
-			prefixes = this.user.id;
-			msg.prefix = `<@${this.user.id}>`;
-		} else if (msg.channel.guild !== undefined && this.guildPrefixes[msg.channel.guild.id] !== undefined) {
-			prefixes = this.guildPrefixes[msg.channel.guild.id];
-		}
-		if (typeof prefixes === "string") {
-			if (!msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefixes) && typeof server === "string") {
-				prefixes = server;
+		const defaultPrefixes = Array.isArray(this.commandOptions.prefix)
+			? this.commandOptions.prefix
+			: [this.commandOptions.prefix];
+		for (const prefix of defaultPrefixes) {
+			if (typeof prefix === "string") {
+				candidates.add(prefix);
 			}
-			return msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefixes) && prefixes;
-		} else if (Array.isArray(prefixes)) {
-			return prefixes.find((prefix) => msg.content.replace(/<@!/g, "<@").toLowerCase().startsWith(prefix));
 		}
-		throw new Error(`Unsupported prefix format | ${prefixes}`);
+
+		if (userConfig?.prefix) {
+			candidates.add(userConfig.prefix);
+		}
+		if (serverConfig?.prefix) {
+			candidates.add(serverConfig.prefix);
+		}
+
+		if (
+			msg.channel.guild !== undefined &&
+			this.guildPrefixes[msg.channel.guild.id] !== undefined
+		) {
+			const guildPrefix = this.guildPrefixes[msg.channel.guild.id];
+			if (typeof guildPrefix === "string") {
+				candidates.add(guildPrefix);
+			} else if (Array.isArray(guildPrefix)) {
+				for (const prefix of guildPrefix) {
+					if (typeof prefix === "string") {
+						candidates.add(prefix);
+					}
+				}
+			}
+		}
+
+		if (this.user) {
+			candidates.add(`<@${this.user.id}>`);
+			candidates.add(`<@!${this.user.id}>`);
+		}
+
+		const matches = [...candidates].filter((prefix) =>
+			normalizedContent.startsWith(prefix.replace(/<@!/g, "<@").toLowerCase()),
+		);
+		if (matches.length < 1) return undefined;
+		return matches.sort((a, b) => b.length - a.length)[0];
 	}
 
 	/*
@@ -171,9 +199,14 @@ class Mov extends CommandClient {
 		if (msg.author.bot) return;
 		(msg.command as any) = false;
 
+		const [userPref, server] = await Promise.all([
+			this.database.user.get<IUserDB>(msg.author.id),
+			msg.guildID
+				? this.database.settings.get<ISettingsDB>(msg.guildID)
+				: Promise.resolve(undefined),
+		]);
+
 		if (msg.mentions.includes(this.user) && msg.type === 0) {
-			const userPref = await this.database.user.get<IUserDB>(msg.author.id);
-			const server = await this.database.settings.get<ISettingsDB>(msg.guildID!);
 			const responseU = userPref?.prefix ? `Your user prefix is \`${userPref.prefix}\`` : '';
 			const responseS = server?.prefix ? `The bot's prefix is \`${server.prefix}\`` : '';
 			const com = `${responseU} ${responseS}`;
@@ -184,8 +217,7 @@ class Mov extends CommandClient {
 			}
 		}
 
-		const userPref = await this.database.user.get<IUserDB>(msg.author.id);
-		if ((msg.prefix as any) = await this.checkPrefixMod(msg)) {
+		if ((msg.prefix as any) = this.resolvePrefix(msg, userPref, server)) {
 			this.commandHandler(msg, userPref || undefined);
 		}
 	}
@@ -203,7 +235,7 @@ class Mov extends CommandClient {
 					const command: { default: MovCommand } = await import(`../commands/${mod}/${cmd}`);
 					this.registerCommand(command.default.label, command.default.generator, command.default.options);
 				} catch (e) {
-					console.error(e);
+					console.error(`Failed to register command ${mod}/${cmd}`, e);
 				}
 			}
 		}

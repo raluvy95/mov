@@ -10,11 +10,20 @@ if (!readdirSync(".").includes("database.sqlite")) {
     );
 }
 
-const db = require("better-sqlite3")("database.sqlite", {
+function getDatabaseConstructor() {
+    if (typeof globalThis.Bun !== "undefined") {
+        return require("bun:sqlite").Database;
+    }
+
+    return require("better-sqlite3");
+}
+
+const Database = getDatabaseConstructor();
+const db = new Database("database.sqlite", {
     fileMustExist: true,
 });
 
-const newdb = require("better-sqlite3")(".MOV.sqlite", {
+const newdb = new Database(".MOV.sqlite", {
     fileMustExist: true,
 });
 

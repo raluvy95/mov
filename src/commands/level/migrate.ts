@@ -31,8 +31,8 @@ async function generator(msg: Message, args: string[]) {
         `Do you want to remove this source user's level?`,
     );
     collector.on("end", (c) => {
-        const msg = c[0];
-        if (msg.content.toLowerCase().startsWith("y")) {
+        const response = c[0];
+        if (response?.content?.toLowerCase()?.startsWith("y")) {
             client.database.level.delete(userId);
             proceed()
         } else {

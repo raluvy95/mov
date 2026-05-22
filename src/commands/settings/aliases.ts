@@ -65,7 +65,42 @@ async function generator(msg: Message, args: string[]) {
     }
     const action = args[0];
     const name = args[1];
-    const target = args[2];
+    const target = args.slice(2).join(" ");
+
+    function normalizeTargetCommand(input: string) {
+        const normalized = input.trim().replace(/<@!/g, "<@").toLowerCase();
+        const prefixes = Array.isArray(client.commandOptions.prefix)
+            ? client.commandOptions.prefix
+            : [client.commandOptions.prefix];
+        const knownPrefixes = prefixes.filter(
+            (prefix): prefix is string => typeof prefix === "string",
+        );
+
+        for (const prefix of knownPrefixes) {
+            if (normalized.startsWith(prefix.toLowerCase())) {
+                return normalized.slice(prefix.length).trim();
+            }
+        }
+
+        return normalized;
+    }
+
+    function resolveTargetCommand(input: string) {
+        const normalized = normalizeTargetCommand(input);
+        let command = client.commands[normalized];
+        if (command) {
+            return command;
+        }
+
+        const aliasTarget = client.commandAliases[normalized] || normalized;
+        command = client.commands[aliasTarget];
+        if (command?.caseInsensitive) {
+            return command;
+        }
+
+        return undefined;
+    }
+
     if (!name) {
         client.createMessage(msg.channel.id, "Missing alias name argument");
         return;
@@ -92,9 +127,9 @@ async function generator(msg: Message, args: string[]) {
                     msg.channel.id,
                     "Cannot create alias longer than 150 characters",
                 );
-                return;
-            }
-            const cmd = client.resolveCommand(target);
+                    return;
+                }
+            const cmd = resolveTargetCommand(target);
             if (!cmd) {
                 client.createMessage(
                     msg.channel.id,
