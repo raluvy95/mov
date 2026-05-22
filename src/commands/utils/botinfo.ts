@@ -34,7 +34,7 @@ async function generator(msg: Message, args: string[]) {
     const memoryUsage = process.memoryUsage();
     let typescript_version: RegExpMatchArray | string | null = (await asyncSafeExec("npx", ["tsc", "-v"])).match(/\d+(\.\d+)*/);
     if (!typescript_version) {
-        typescript_version == "???"
+        typescript_version = "???"
     } else {
         typescript_version = typescript_version[0]
     }

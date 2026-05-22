@@ -69,6 +69,7 @@ export async function legacyLeaderboard(
     msg: Message<any>,
     page: number,
     maxPage: number,
+    currentRank?: { id: string; rank: number; data: ILevelDB },
 ) {
     const e = new MovEmbed()
         .setTitle("Leaderboard")
@@ -97,9 +98,9 @@ export async function legacyLeaderboard(
         } | **Total XP** ${l.value.totalxp.toLocaleString()} | **XP** ${l.value.xp.toLocaleString()}\n`;
     }
     let mesg: string;
-    const currentRank = await getLeaderboardRank(msg.author.id);
-    if (!currentRank.rank) {
-        mesg = "You just ran this command";
+    currentRank = currentRank || (await getLeaderboardRank(msg.author.id));
+    if (!currentRank) {
+        mesg = "You are not ranked yet";
     } else {
         mesg = `Rank: ${currentRank.rank} | **Level** ${currentRank.data.level}`;
     }

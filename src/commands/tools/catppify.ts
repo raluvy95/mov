@@ -1,7 +1,7 @@
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import { Noise, Palette, catppify } from "../../utils/catppify";
+import type { Noise, Palette } from "../../utils/catppify";
 import { DateTime } from "luxon";
 import ms from "ms";
 
@@ -85,7 +85,17 @@ async function generator(msg: Message, args: string[]) {
     client.createMessage(msg.channel.id, "Ok, please be patient while processing. May take longer depending on image size.").then(async () => {
         await client.sendChannelTyping(msg.channel.id);
 
-        const generated = await catppify(link, palette as Palette, noise as Noise);
+        let generated;
+        try {
+            const { catppify } = await import("../../utils/catppify");
+            generated = await catppify(link, palette as Palette, noise as Noise);
+        } catch {
+            client.createMessage(
+                msg.channel.id,
+                "Image processing is unavailable right now.",
+            );
+            return;
+        }
 
         const final_time = DateTime.now();
         const diff = final_time.diff(init_time, [

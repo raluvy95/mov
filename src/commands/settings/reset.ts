@@ -28,8 +28,8 @@ function generator(msg: Message, args: string[]) {
         `Are you sure you want to reset \`${target}\``,
     );
     collector.on("end", (c) => {
-        const msg = c[0];
-        if (msg.content.toLowerCase().startsWith("y")) {
+        const response = c[0];
+        if (response?.content.toLowerCase().startsWith("y")) {
             if (target === "all") {
                 for (const k of allDatabase) {
                     if (k === "settings") {

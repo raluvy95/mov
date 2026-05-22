@@ -2,19 +2,17 @@ import { Message, User } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
 import { ILevelDB, IUserDB } from "../../interfaces/database";
-import { genXPRank } from "../../utils/canvas";
 import { getUser } from "../../utils/get";
 import { legacyRank } from "../../utils/legacy";
 
 async function useImage(user: User, level: ILevelDB, msg: Message) {
     let img;
     try {
+        const { genXPRank } = await import("../../utils/canvas");
         img = await genXPRank(user, level);
-    } catch {
-        client.createMessage(
-            msg.channel.id,
-            `There was an error rendering the rank image. (most likely invalid user config)\nYou currently have level **${level.level}**, xp **${level.xp}** and total xp: **${level.totalxp}**`,
-        );
+    } catch (e) {
+        console.error(e);
+        await legacyRank(msg, level, user);
         return;
     }
     await client.createMessage(msg.channel.id, {}, [

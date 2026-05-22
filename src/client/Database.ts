@@ -1,9 +1,11 @@
 import { DEFAULT_SERVER_SETTINGS } from "../constant/defaultConfig";
+import { ILevelDB } from "../interfaces/database";
 
 declare function require(id: string): any;
 
 interface IDatabaseOptions {
     filePath?: string;
+    cacheValues?: boolean;
 }
 
 interface IRow<T = unknown> {
@@ -130,18 +132,43 @@ function deleteNestedValue(source: unknown, path: string[]) {
 }
 
 export class MovDB {
-    private database: ISQLiteDatabase;
+    protected database: ISQLiteDatabase;
     private table: string;
+    private cacheValues: boolean;
+    private valueCache = new Map<string, unknown>();
 
     constructor(table: string, opt?: IDatabaseOptions) {
         this.table = table;
+        this.cacheValues = opt?.cacheValues || false;
         this.database = getDatabase(opt?.filePath || DEFAULT_DB_FILE);
         this.database.exec?.(
             `CREATE TABLE IF NOT EXISTS ${this.table} (ID TEXT PRIMARY KEY, json TEXT NOT NULL)`,
         );
     }
 
+    protected get tableName() {
+        return this.table;
+    }
+
+    private readCachedRow(id: string) {
+        if (!this.cacheValues || !this.valueCache.has(id)) return undefined;
+        return cloneValue(this.valueCache.get(id));
+    }
+
+    private cacheRow(id: string, value: unknown) {
+        if (!this.cacheValues) return;
+        this.valueCache.set(id, cloneValue(value));
+    }
+
+    private dropCachedRow(id: string) {
+        if (!this.cacheValues) return;
+        this.valueCache.delete(id);
+    }
+
     private getRow(id: string) {
+        const cached = this.readCachedRow(id);
+        if (cached !== undefined) return cached;
+
         const row = this.database
             .prepare<{ json: string | null }>(
                 `SELECT json FROM ${this.table} WHERE ID = ?`,
@@ -149,10 +176,13 @@ export class MovDB {
             .get(id);
 
         if (!row?.json) return undefined;
-        return JSON.parse(row.json) as unknown;
+        const parsed = JSON.parse(row.json) as unknown;
+        this.cacheRow(id, parsed);
+        return cloneValue(parsed);
     }
 
     private upsertRow(id: string, value: unknown) {
+        this.cacheRow(id, value);
         this.database
             .prepare(
                 `INSERT INTO ${this.table} (ID, json) VALUES (?, ?)
@@ -200,6 +230,7 @@ export class MovDB {
         const { id, path } = parsePath(key);
 
         if (path.length === 0) {
+            this.dropCachedRow(id);
             const result = this.database
                 .prepare(`DELETE FROM ${this.table} WHERE ID = ?`)
                 .run(id) as { changes?: number };
@@ -223,6 +254,7 @@ export class MovDB {
     }
 
     async deleteAll() {
+        this.valueCache.clear();
         this.database.prepare(`DELETE FROM ${this.table}`).run();
     }
 
@@ -238,13 +270,24 @@ export class MovDB {
             value: JSON.parse(row.json) as T,
         }));
     }
+
+    async count() {
+        const row = this.database
+            .prepare<{ count: number }>(
+                `SELECT COUNT(*) as count FROM ${this.table}`,
+            )
+            .get();
+        return row?.count || 0;
+    }
 }
 
 export class SettingsDB extends MovDB {
     private guildID: string;
 
     constructor(guildID: string) {
-        super("serversettings");
+        super("serversettings", {
+            cacheValues: true,
+        });
         this.guildID = guildID;
         this.init();
     }
@@ -260,11 +303,74 @@ export class LevelDB extends MovDB {
     constructor() {
         super("level");
     }
+
+    private parseEntry(row: { ID: string; json: string }) {
+        return {
+            id: row.ID,
+            value: JSON.parse(row.json) as ILevelDB,
+        };
+    }
+
+    async topByTotalXP(limit: number, offset = 0) {
+        try {
+            const rows = this.database
+                .prepare<{ ID: string; json: string }>(
+                    `SELECT ID, json
+                     FROM ${this.tableName}
+                     ORDER BY CAST(json_extract(json, '$.totalxp') AS INTEGER) DESC, ID ASC
+                     LIMIT ? OFFSET ?`,
+                )
+                .all(limit, offset);
+
+            return rows.map((row) => this.parseEntry(row));
+        } catch {
+            const rows = await this.all<ILevelDB>();
+            return rows
+                .sort((a, b) => b.value.totalxp - a.value.totalxp)
+                .slice(offset, offset + limit);
+        }
+    }
+
+    async getRank(id: string) {
+        const entry = await this.get<ILevelDB>(id);
+
+        if (!entry) return undefined;
+
+        try {
+            const row = this.database
+                .prepare<{ rank: number }>(
+                    `SELECT COUNT(*) + 1 as rank
+                     FROM ${this.tableName}
+                     WHERE CAST(json_extract(json, '$.totalxp') AS INTEGER) > ?`,
+                )
+                .get(entry.totalxp);
+
+            return {
+                id,
+                rank: row?.rank || 1,
+                data: entry,
+            };
+        } catch {
+            const rows = await this.all<ILevelDB>();
+            const rank =
+                rows
+                    .sort((a, b) => b.value.totalxp - a.value.totalxp)
+                    .findIndex((row) => row.id === id) + 1;
+
+            return {
+                id,
+                rank: rank <= 0 ? 1 : rank,
+                data: entry,
+            };
+        }
+    }
 }
 
 export class UserDB extends MovDB {
     constructor() {
-        super("usersettings");
+        super("usersettings", {
+            cacheValues: true,
+        });
     }
 }
 

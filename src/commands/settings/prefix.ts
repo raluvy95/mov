@@ -29,8 +29,8 @@ async function generator(msg: Message, args: string[]) {
         `Are you sure you want to change this bot's prefix to \`${args[0].replace(/"/g, "")}\`?\nPlease type \`${id}\` to confirm!`,
     );
     collector.on("end", (c) => {
-        const msg = c[0];
-        if (msg.content === id) {
+        const response = c[0];
+        if (response?.content === id) {
             client.database.settings.set(
                 `${msg.guildID!}.prefix`,
                 args[0].replace(/"/g, ""),

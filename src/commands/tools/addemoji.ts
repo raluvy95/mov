@@ -1,7 +1,6 @@
 import { Message } from "eris";
 import { client } from "../../client/Client";
 import { MovCommand } from "../../client/Command";
-import { urlToDataURI } from "../../utils/canvas";
 
 export async function urlToBase64(url: string) {
     if (url.startsWith("data:image/")) {
@@ -39,7 +38,7 @@ async function generator(msg: Message, args: string[]) {
         client
             .createGuildEmoji(msg.guildID!, {
                 name: name,
-                image: await urlToDataURI(url),
+                image: await urlToBase64(url),
             })
             .then((e) => {
                 client.createMessage(

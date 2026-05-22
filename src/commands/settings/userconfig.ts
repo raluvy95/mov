@@ -4,7 +4,6 @@ import { MovCommand } from "../../client/Command";
 import { MovEmbed } from "../../client/Embed";
 import { DEFAULT_USER_SETTINGS } from "../../constant/defaultConfig";
 import { IUserDB } from "../../interfaces/database";
-import { checkURLValidity } from "../../utils/canvas";
 
 async function generator(msg: Message, args: string[]) {
     let uSettings = await client.database.user.get<IUserDB>(msg.author.id);
@@ -28,7 +27,19 @@ async function generator(msg: Message, args: string[]) {
         switch (type) {
             case "customBackgroundURL":
                 if (value !== "color") {
-                    const out = await checkURLValidity(value);
+                    let out = false;
+                    try {
+                        const { checkURLValidity } = await import(
+                            "../../utils/canvas"
+                        );
+                        out = await checkURLValidity(value);
+                    } catch {
+                        client.createMessage(
+                            msg.channel.id,
+                            "Background image validation is unavailable right now.",
+                        );
+                        return;
+                    }
                     if (!out) {
                         client.createMessage(msg.channel.id, "Invalid URL.");
                         return;

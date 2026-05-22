@@ -17,8 +17,8 @@ function generator(msg: Message, _args: string[]) {
         `Are you sure you want to nuke the leaderboard? **THIS ACTION CANNOT BE REVERTED**\nPlease type \`${id}\` to confirm!`,
     );
     collector.on("end", (c) => {
-        const msg = c[0];
-        if (msg.content === id) {
+        const response = c[0];
+        if (response?.content === id) {
             client.database.level.deleteAll();
             client.createMessage(msg.channel.id, "**NUKED!** If you actually changed your mind, there's no way to restore it. Sorry about that.");
         } else {
