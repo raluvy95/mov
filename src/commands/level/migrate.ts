@@ -32,7 +32,7 @@ async function generator(msg: Message, args: string[]) {
     );
     collector.on("end", (c) => {
         const response = c[0];
-        if (response?.content.toLowerCase().startsWith("y")) {
+        if (response?.content?.toLowerCase()?.startsWith("y")) {
             client.database.level.delete(userId);
             proceed()
         } else {
