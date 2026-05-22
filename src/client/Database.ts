@@ -1,20 +1,12 @@
 import { DEFAULT_SERVER_SETTINGS, DEFAULT_DB_FILE } from "../constant/defaultConfig";
 import type { ILevelDB } from "../interfaces/database";
-import { Database } from "bun:sqlite";
-
+import { Database, Statement } from "bun:sqlite";
 
 interface IRow<T = unknown> {
     ID: string;
     json: string;
     value: T;
 }
-
-interface IStatementResult<T = unknown> {
-    get(...params: unknown[]): T;
-    all(...params: unknown[]): T[];
-    run(...params: unknown[]): unknown;
-}
-
 
 function parsePath(key: string) {
     const parts = key.split(".");
@@ -25,9 +17,7 @@ function parsePath(key: string) {
 }
 
 function cloneValue<T>(value: T): T {
-    if (value === undefined) {
-        return value;
-    }
+    if (value === undefined) return value;
     return JSON.parse(JSON.stringify(value)) as T;
 }
 
@@ -37,27 +27,18 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 function getNestedValue(source: unknown, path: string[]) {
     let current = source;
-
     for (const part of path) {
-        if (
-            typeof current !== "object" ||
-            current === null ||
-            !(part in (current as Record<string, unknown>))
-        ) {
+        if (typeof current !== "object" || current === null || !(part in (current as Record<string, unknown>))) {
             return undefined;
         }
         current = (current as Record<string, unknown>)[part];
     }
-
     return current;
 }
 
 function setNestedValue(source: unknown, path: string[], value: unknown) {
-    if (path.length === 0) {
-        return cloneValue(value);
-    }
-
-    const lastKey = path[path.length - 1]; // extracted
+    if (path.length === 0) return cloneValue(value);
+    const lastKey = path[path.length - 1];
     const root = isObject(source) ? cloneValue(source) : {};
     let cursor = root as Record<string, unknown>;
 
@@ -68,28 +49,23 @@ function setNestedValue(source: unknown, path: string[], value: unknown) {
         }
         cursor = cursor[part] as Record<string, unknown>;
     }
-
-    cursor[lastKey!] = cloneValue(value); // clean index
+    cursor[lastKey!] = cloneValue(value);
     return root;
 }
 
 function deleteNestedValue(source: unknown, path: string[]) {
     if (!isObject(source)) return source;
     if (path.length === 0) return undefined;
-
-    const lastKey = path[path.length - 1]; // extracted
+    const lastKey = path[path.length - 1];
     const root = cloneValue(source) as Record<string, unknown>;
     let cursor: Record<string, unknown> = root;
 
     for (const part of path.slice(0, -1)) {
         const next = cursor[part];
-        if (!isObject(next)) {
-            return root;
-        }
+        if (!isObject(next)) return root;
         cursor = next;
     }
-
-    delete cursor[lastKey!]; // clean delete
+    delete cursor[lastKey!];
     return root;
 }
 
@@ -99,14 +75,76 @@ export class MovDB {
     private cacheValues: boolean;
     private valueCache = new Map<string, unknown>();
 
+    // Hold compiled statements statically
+    private stmtGet!: Statement;
+    private stmtUpsert!: Statement;
+    private stmtDelete!: Statement;
+    private stmtAll!: Statement;
+    private stmtCount!: Statement;
+    private stmtClear!: Statement;
+
     constructor(table: string, cacheValues?: boolean) {
         this.table = table;
         this.cacheValues = cacheValues || false;
         this.database = new Database(DEFAULT_DB_FILE);
-        this.database.run(
-            `CREATE TABLE IF NOT EXISTS ${this.table} (ID TEXT PRIMARY KEY, json TEXT NOT NULL)`,
-        );
+
+        // 1. turn on write-ahead logging first for performance
         this.database.run("PRAGMA journal_mode = WAL;");
+
+        // 2. ensure a table exists before scanning metadata fields
+        this.database.run(
+            `CREATE TABLE IF NOT EXISTS ${this.table} (ID TEXT, json TEXT)`
+        );
+
+        // 3. introspect structural metadata features using PRAGMA definitions
+        const tableInfo = this.database.prepare(`PRAGMA table_info(${this.table})`).all() as {
+            name: string;
+            pk: number;
+            notnull: number;
+        }[];
+
+        const idColumn = tableInfo.find(col => col.name === "ID");
+
+        // if pk or notnull are 0, we are dealing with a broken/legacy quick.db format table
+        if (idColumn && (idColumn.pk === 0 || idColumn.notnull === 0)) {
+            console.warn(`[db-migration] restructuring legacy schema constraints for table: ${this.table}`);
+
+            this.database.transaction(() => {
+                // transfer rows to safety, swap structures out, and write back clean schemas
+                this.database.run(`ALTER TABLE ${this.table} RENAME TO _migration_old_${this.table}`);
+
+                this.database.run(
+                    `CREATE TABLE ${this.table} (ID TEXT PRIMARY KEY NOT NULL, json TEXT NOT NULL)`
+                );
+
+                // deduplicate rows on the fly if corrupt duplicates existed previously
+                this.database.run(`
+                INSERT INTO ${this.table} (ID, json) 
+                SELECT ID, json FROM _migration_old_${this.table} 
+                WHERE ID IS NOT NULL AND json IS NOT NULL
+                ON CONFLICT(ID) DO UPDATE SET json = excluded.json
+            `);
+
+                this.database.run(`DROP TABLE _migration_old_${this.table}`);
+            })();
+
+            console.log(`[db-migration] successfully upgraded table: ${this.table}`);
+        }
+
+        // 4. compile your cached statements down safely now that schemas match
+        this.compileStatements();
+    }
+
+    private compileStatements() {
+        this.stmtGet = this.database.prepare(`SELECT json FROM ${this.table} WHERE ID = ?`);
+        this.stmtUpsert = this.database.prepare(
+            `INSERT INTO ${this.table} (ID, json) VALUES (?, ?) 
+             ON CONFLICT(ID) DO UPDATE SET json = excluded.json`
+        );
+        this.stmtDelete = this.database.prepare(`DELETE FROM ${this.table} WHERE ID = ?`);
+        this.stmtAll = this.database.prepare(`SELECT ID, json FROM ${this.table}`);
+        this.stmtCount = this.database.prepare(`SELECT COUNT(*) as count FROM ${this.table}`);
+        this.stmtClear = this.database.prepare(`DELETE FROM ${this.table}`);
     }
 
     protected get tableName() {
@@ -132,13 +170,9 @@ export class MovDB {
         const cached = this.readCachedRow(id);
         if (cached !== undefined) return cached;
 
-        const row = this.database
-            .prepare<{ json: string | null }, [string]>(
-                `SELECT json FROM ${this.table} WHERE ID = ?`,
-            )
-            .get(id);
-
+        const row = this.stmtGet.get(id) as { json: string | null } | undefined;
         if (!row?.json) return undefined;
+
         const parsed = JSON.parse(row.json) as unknown;
         this.cacheRow(id, parsed);
         return cloneValue(parsed);
@@ -146,15 +180,11 @@ export class MovDB {
 
     private upsertRow(id: string, value: unknown) {
         this.cacheRow(id, value);
-        this.database
-            .prepare(
-                `INSERT INTO ${this.table} (ID, json) VALUES (?, ?)
-                 ON CONFLICT(ID) DO UPDATE SET json = excluded.json`,
-            )
-            .run(id, JSON.stringify(value));
+        this.stmtUpsert.run(id, JSON.stringify(value));
     }
 
-    async get<T = unknown>(key: string) {
+    // Dropped fake async context conversions since drivers run synchronously underneath 
+    public get<T = unknown>(key: string): T | undefined {
         const { id, path } = parsePath(key);
         const row = this.getRow(id);
 
@@ -164,7 +194,7 @@ export class MovDB {
         return getNestedValue(row, path) as T | undefined;
     }
 
-    async set<T = unknown>(key: string, value: T) {
+    public set<T = unknown>(key: string, value: T): T {
         const { id, path } = parsePath(key);
 
         if (path.length === 0) {
@@ -178,25 +208,23 @@ export class MovDB {
         return value;
     }
 
-    async has(key: string) {
-        return (await this.get(key)) !== undefined;
+    public has(key: string): boolean {
+        return this.get(key) !== undefined;
     }
 
-    async add(key: string, value: number) {
-        const current = await this.get<number>(key);
+    public add(key: string, value: number): number {
+        const current = this.get<number>(key);
         const next = (typeof current === "number" ? current : 0) + value;
-        await this.set(key, next);
+        this.set(key, next);
         return next;
     }
 
-    async delete(key: string) {
+    public delete(key: string): boolean {
         const { id, path } = parsePath(key);
 
         if (path.length === 0) {
             this.dropCachedRow(id);
-            const result = this.database
-                .prepare(`DELETE FROM ${this.table} WHERE ID = ?`)
-                .run(id) as { changes?: number };
+            const result = this.stmtDelete.run(id) as { changes?: number };
             return (result?.changes || 0) > 0;
         }
 
@@ -208,7 +236,7 @@ export class MovDB {
 
         const next = deleteNestedValue(current, path);
         if (next === undefined) {
-            await this.delete(id);
+            this.delete(id);
             return true;
         }
 
@@ -216,30 +244,21 @@ export class MovDB {
         return true;
     }
 
-    async deleteAll() {
+    public deleteAll(): void {
         this.valueCache.clear();
-        this.database.prepare(`DELETE FROM ${this.table}`).run();
+        this.stmtClear.run();
     }
 
-    async all<T = unknown>() {
-        const rows = this.database
-            .prepare<Pick<IRow<T>, "ID" | "json">, []>(
-                `SELECT ID, json FROM ${this.table}`,
-            )
-            .all();
-
+    public all<T = unknown>(): { id: string; value: T }[] {
+        const rows = this.stmtAll.all() as { ID: string; json: string }[];
         return rows.map((row) => ({
             id: row.ID,
             value: JSON.parse(row.json) as T,
         }));
     }
 
-    async count() {
-        const row = this.database
-            .prepare<{ count: number }, []>(
-                `SELECT COUNT(*) as count FROM ${this.table}`,
-            )
-            .get();
+    public count(): number {
+        const row = this.stmtCount.get() as { count: number } | undefined;
         return row?.count || 0;
     }
 }
@@ -250,19 +269,49 @@ export class SettingsDB extends MovDB {
     constructor(guildID: string) {
         super("serversettings", true);
         this.guildID = guildID;
-        this.init();
+        // Run check synchronously to avoid instance call race conditions
+        this.initSync();
     }
 
-    async init() {
-        if (!(await this.has(this.guildID))) {
-            await this.set(this.guildID, DEFAULT_SERVER_SETTINGS);
+    private initSync() {
+        if (!this.has(this.guildID)) {
+            this.set(this.guildID, DEFAULT_SERVER_SETTINGS);
         }
     }
 }
 
 export class LevelDB extends MovDB {
+    private stmtTop!: Statement;
+    private stmtRank!: Statement;
+
     constructor() {
         super("level");
+        this.setupVirtualIndexing();
+    }
+
+    /**
+     * Creates an index tracking path fields straight within sqlite engine layers
+     */
+    private setupVirtualIndexing() {
+        try {
+            // Generate index target fields inside sqlite metadata spaces
+            this.database.run(
+                `CREATE INDEX IF NOT EXISTS idx_level_totalxp ON ${this.tableName}(CAST(json_extract(json, '$.totalxp') AS INTEGER) DESC)`
+            );
+        } catch {
+            // fail-silent if structural table changes are locked
+        }
+
+        this.stmtTop = this.database.prepare(
+            `SELECT ID, json FROM ${this.tableName}
+             ORDER BY CAST(json_extract(json, '$.totalxp') AS INTEGER) DESC, ID ASC
+             LIMIT ? OFFSET ?`
+        );
+
+        this.stmtRank = this.database.prepare(
+            `SELECT COUNT(*) + 1 as rank FROM ${this.tableName}
+             WHERE CAST(json_extract(json, '$.totalxp') AS INTEGER) > ?`
+        );
     }
 
     private parseEntry(row: { ID: string; json: string }) {
@@ -272,51 +321,34 @@ export class LevelDB extends MovDB {
         };
     }
 
-    async topByTotalXP(limit: number, offset = 0) {
+    public topByTotalXP(limit: number, offset = 0) {
         try {
-            const rows = this.database
-                .prepare<{ ID: string; json: string }, [number, number]>(
-                    `SELECT ID, json
-                     FROM ${this.tableName}
-                     ORDER BY CAST(json_extract(json, '$.totalxp') AS INTEGER) DESC, ID ASC
-                     LIMIT ? OFFSET ?`,
-                )
-                .all(limit, offset);
-
+            const rows = this.stmtTop.all(limit, offset) as { ID: string; json: string }[];
             return rows.map((row) => this.parseEntry(row));
         } catch {
-            const rows = await this.all<ILevelDB>();
+            const rows = this.all<ILevelDB>();
             return rows
                 .sort((a, b) => b.value.totalxp - a.value.totalxp)
                 .slice(offset, offset + limit);
         }
     }
 
-    async getRank(id: string) {
-        const entry = await this.get<ILevelDB>(id);
-
+    public getRank(id: string) {
+        const entry = this.get<ILevelDB>(id);
         if (!entry) return undefined;
 
         try {
-            const row = this.database
-                .prepare<{ rank: number }, [number]>(
-                    `SELECT COUNT(*) + 1 as rank
-                     FROM ${this.tableName}
-                     WHERE CAST(json_extract(json, '$.totalxp') AS INTEGER) > ?`,
-                )
-                .get(entry.totalxp);
-
+            const row = this.stmtRank.get(entry.totalxp) as { rank: number } | undefined;
             return {
                 id,
                 rank: row?.rank || 1,
                 data: entry,
             };
         } catch {
-            const rows = await this.all<ILevelDB>();
-            const rank =
-                rows
-                    .sort((a, b) => b.value.totalxp - a.value.totalxp)
-                    .findIndex((row) => row.id === id) + 1;
+            const rows = this.all<ILevelDB>();
+            const rank = rows
+                .sort((a, b) => b.value.totalxp - a.value.totalxp)
+                .findIndex((row) => row.id === id) + 1;
 
             return {
                 id,

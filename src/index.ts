@@ -19,17 +19,6 @@ client.on("debug", (i) => {
     debug(i);
 });
 
-client.on("interactionCreate", (i) => {
-    if (i.type === 2) {
-        const data = i as CommandInteraction;
-        if (data.data.name.startsWith("jolly")) {
-            i.createMessage(
-                "Slash command is not supported, use traditional command instead.",
-            );
-        }
-    }
-});
-
 try {
     unlinkSync("generated.png");
     unlinkSync("input.png");
