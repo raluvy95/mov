@@ -1,6 +1,6 @@
 import { DEFAULT_SERVER_SETTINGS, DEFAULT_DB_FILE } from "../constant/defaultConfig";
 import type { ILevelDB } from "../interfaces/database";
-import { Database, Statement } from "bun:sqlite";
+import { Database, Statement, type SQLQueryBindings } from "bun:sqlite";
 
 interface IRow<T = unknown> {
     ID: string;
@@ -93,7 +93,7 @@ export class MovDB {
 
         // 2. ensure a table exists before scanning metadata fields
         this.database.run(
-            `CREATE TABLE IF NOT EXISTS ${this.table} (ID TEXT, json TEXT)`
+            `CREATE TABLE IF NOT EXISTS ${this.table} (ID TEXT PRIMARY KEY NOT NULL, json TEXT NOT NULL)`
         );
 
         // 3. introspect structural metadata features using PRAGMA definitions
@@ -260,6 +260,10 @@ export class MovDB {
     public count(): number {
         const row = this.stmtCount.get() as { count: number } | undefined;
         return row?.count || 0;
+    }
+
+    public rawExec(sql: string, ...bindings: SQLQueryBindings[]) {
+        return this.database.run(sql, bindings)
     }
 }
 
