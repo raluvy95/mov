@@ -8,42 +8,56 @@ export default new MovPlugin("rss", {
     event: "ready",
     async run() {
         setInterval(async () => {
-            const rssdb = await client.database.settings.get<ISettingsDB>(
+            const rssdb = client.database.settings.get<ISettingsDB>(
                 process.env.SERVER_ID!,
             );
             if (!rssdb?.modules.rss.enable) return;
 
             const rss = rssdb.modules.rss;
-            if (!rss.instances) return;
-            if (rss.instances.length < 1) return;
+            if (!rss.instances || rss.instances.length < 1) return;
 
             for (const instance of rss.instances) {
                 for (const url of instance.url) {
                     try {
-                        var cached = await client.database.cache.get<string[]>(url);
-                        if (!cached) {
+                        // encode url to base64url to prevent the DB wrapper from breaking keys into nested JSON objects
+                        const cacheKey = Buffer.from(url).toString("base64url");
+
+                        let cached = client.database.cache.get<string[]>(cacheKey);
+                        if (!cached || !Array.isArray(cached)) {
                             cached = [];
                         }
+
                         const parsed = await parse(url);
+                        if (!parsed?.items?.length) continue;
+
                         const latestContent = parsed.items[0];
-                        if (Array.isArray(latestContent.link)) {
-                            // Atom support
-                            latestContent.link = latestContent.link[0].href;
-                        }
-                        if (!cached.includes(latestContent.link)) {
-                            client.database.cache.set(url, cached.slice(-3).concat(latestContent.link));
+                        const link = Array.isArray(latestContent.link)
+                            ? latestContent.link[0].href
+                            : latestContent.link;
+
+                        if (!link) continue;
+
+                        if (!cached.includes(link)) {
+                            // push immediately to local reference so current loop cycle tracks it
+                            cached.push(link);
+                            if (cached.length > 5) cached.shift();
+
+                            // force overwrite the cache DB with a flat key
+                            client.database.cache.set(cacheKey, [...cached]);
+
                             const content = !rss.customMsg
                                 ? "📰 | {url}"
                                 : rss.customMsg;
+
                             await summonWebhook(instance.channelId.toString(), {
                                 username: instance.name,
                                 content: content
-                                    .replace("{url}", latestContent.link)
-                                    .replace("{title}", latestContent.title),
+                                    .replace("{url}", link)
+                                    .replace("{title}", latestContent.title || ""),
                             });
                         }
                     } catch (e) {
-                        console.error(e);
+                        console.error(`rss plugin error on ${url}:`, e);
                     }
                 }
             }
